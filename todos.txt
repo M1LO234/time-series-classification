@@ -1,0 +1,32 @@
+prepare_train:
+    -> saving weights (last or best)✅
+    -> specifying train method (how train files are being passed - randomly/ one after another, etc.)✅
+
+prepare_dataset module:
+    -> read dataset from file/files/train_test_files
+    -> obtaining multivariate timeseries
+    -> 
+
+weight_optimization:
+    -> other methods of optimization
+    -> optional aggregation weights optimization✅
+
+util/data_prep:
+    -> different rescaling limits✅
+    -> read from arffs (using read_file module)✅
+    -> add rescaling to data read from arff✅
+
+preprocessing/read_file:
+    -> read dimensions from different files OR 
+    -> from one file✅
+    -> specify class type✅
+
+fcm_test:
+    -> calculate errors
+
+main:
+    -> saving results
+
+-> get rid of nans
+
+get this module ready to perform our previous calculations
