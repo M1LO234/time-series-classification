@@ -10,23 +10,28 @@ prepare_dataset module:
 weight_optimization:
     -> other methods of optimization
     -> optional aggregation weights optimization✅
+    -> make passing window transformation function optional
 
 util/data_prep:
     -> different rescaling limits✅
     -> read from arffs (using read_file module)✅
     -> add rescaling to data read from arff✅
+    -> add support for rescaling limits for arff files
 
 preprocessing/read_file:
     -> read dimensions from different files OR 
     -> from one file✅
     -> specify class type✅
 
-fcm_test:
+testing:
+    -> modify code to perform testing on arff data✅
     -> calculate errors
 
 main:
-    -> saving results
+    -> saving results✅
+    -> universal file naming
+    -> passing dimensions of timseries as a parameter
 
+-> early stopping
 -> get rid of nans
-
-get this module ready to perform our previous calculations
+-> get this module ready to perform our previous calculations

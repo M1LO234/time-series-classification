@@ -51,8 +51,14 @@ def main(args):
         mode = weight_optimization.outer
     else:
         mode = weight_optimization.inner
-    train_path = f'{dataset}/Train'
-    test_path = f'{dataset}/Test'
+
+    if dataset:
+        train_path = f'{dataset}/Train'
+        test_path = f'{dataset}/Test'
+    else:
+        train_path = tr_path
+        test_path = te_path
+
     if class_number:
         class_n = int(class_number)
     else:
@@ -68,7 +74,7 @@ def main(args):
                                                                                     min_max_scale=min_max_sc,
                                                                                     rescLimits=rescaleLimits)
     else:
-        train_series_set, test_series_set, train_file, test_file = data_prep.import_from_arff(train_path=tr_path, test_path=te_path, amount=amountarg,
+        train_series_set, test_series_set, train_file, test_file = data_prep.import_from_arff(train_path=train_path, test_path=test_path,
                                                                             classif=class_n, dims=3, specificFiles=specFiles,
                                                                             specTestFile=specTestFile, min_max_scale=min_max_sc)
 
@@ -93,18 +99,19 @@ def main(args):
                                             window=windowarg, use_aggregation=ua,
                                             get_best_weights=True,
                                             passing_files_method=pass_train)
+
+    agg_weights = weights[1]
+    weights = weights[0]
     # =============================================
 
-    return
+    # return
     if (savepath == None):
         savedist = 'output'
     else:
-        savedist = f'{savepath}/output'
+        savedist = f'{savepath}'
 
     if not os.path.exists(savedist):
         os.makedirs(savedist)
-    if not os.path.exists(f'{savedist}/{ts}'):
-        os.makedirs(f'{savedist}/{ts}')
 
     summary = {
         'config': {
@@ -113,19 +120,20 @@ def main(args):
             'error': error.__name__,
             'transformation function': transformation.__name__,
             'calculations position': mode.__name__,
-            'max iterations': max_iter,
-            'window size': window,
-            'performance index': performance_index
+            'max iterations': iterarg,
+            'window size': windowarg,
+            'performance index': pi,
+            'data normalization ranges': min_max_sc
         },
         'files': {
             'training': train_file,
             'testing': test_file[0],
             'train path': train_path,
             'test path': test_path,
-            'class': classif
+            'class': class_n
         },
         'weights': {
-            'aggregation': [],
+            'aggregation': agg_weights.tolist() if type(agg_weights) == np.ndarray else None,
             'fcm': weights.tolist()
         },
         'results': {
@@ -135,15 +143,8 @@ def main(args):
         }
     }
 
-    with open(f"{savedist}/{ts}/train_summary.json", "w") as f:
+    with open(f"{savedist}/{ts}.json", "w") as f:
         json.dump(summary, f)
-
-    f1 = plt.figure(1)
-    f1.suptitle('Train errors')
-    plt.ylabel(f'{error.__name__}')
-    plt.xlabel('outer loop iteration count')
-    plt.plot(errors)
-    plt.savefig(f'{savedist}/{ts}/train_errors.png', bbox_inches='tight')
 
     return ts
 
@@ -163,6 +164,7 @@ if __name__ == '__main__':
     parser.add_argument("-w", "--window", dest="window", default=4, type=int, help='Size of the window')
     parser.add_argument("-am", "--amount", dest="amount", default=4, type=int, help='Number of training files')
     parser.add_argument("--path", dest="savepath", type=str, help='Path to save the model')
+    # parser.add_argument("--path", dest="savepath", type=str, help='Path to save the model')
     parser.add_argument("-d", "--dataset", dest="dataset", type=str, help='Path to the dataset')
     parser.add_argument("-tr_path", dest="tr_path", type=str, help='Path to the .arff train file')
     parser.add_argument("-te_path", dest="te_path", type=str, help='Path to the .arff test file')

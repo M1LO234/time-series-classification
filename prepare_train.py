@@ -42,6 +42,6 @@ def fcm_train(train_series_set, step, transition_func, error, mode, max_iter, pe
     if get_best_weights:
         weights = all_weights[errors.index(np.min(errors))]
 
-    return weights, errors, loop_error
+    return [weights, agg_weights], errors, loop_error
     
     
