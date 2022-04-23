@@ -35,3 +35,13 @@ main:
 -> early stopping
 -> get rid of nans
 -> get this module ready to perform our previous calculations
+
+input file with parameters:
+    -> dataset tr/te paths
+        -> method of passing files (specific files, random, crossval) (tr and te)
+        -> class of training files
+    -> classifier type
+        -> specific parameters to classifier
+    -> output path
+
+script for generating input files

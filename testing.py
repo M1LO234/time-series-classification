@@ -21,7 +21,7 @@ def main(ts, test_file=None, arff=True,):
                                                                 classif=train_summary['files']['class'], 
                                                                 dims=3, 
                                                                 specificFiles=train_summary['files']['training'],
-                                                                specTestFile=train_summary['files']['testing'], 
+                                                                specTestFile=train_summary['files']['testing'] if test_file is None else test_file, 
                                                                 min_max_scale=train_summary['config']['data normalization ranges'],
                                                                 rescLimits=None)
     else:
@@ -53,6 +53,7 @@ def main(ts, test_file=None, arff=True,):
             test_errors['rmse'].append(metrics.rmse(step_i['y'], yt))
             test_errors['mpe'].append(metrics.mpe(step_i['y'], yt))
             test_errors['max_pe'].append(metrics.max_pe(step_i['y'], yt))
+    print(f'test file: {te}, rmse: {np.array(test_errors["rmse"]).mean()}, mpe: {np.array(test_errors["mpe"]).mean()} max_pe: {np.array(test_errors["max_pe"]).mean()}')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fuzzy Cognitive Mapping testing')
