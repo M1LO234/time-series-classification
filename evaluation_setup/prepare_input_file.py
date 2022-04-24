@@ -11,6 +11,8 @@ def get_python_run_commands_from_json(path):
     run_commands = []
     test_commands = [] #todo: add testing commands for specific models (standarized file naming required)
     for conf in con['configs']:
+        ds_name = conf['datasets']['name']
+        dims = conf['datasets']['dimensions']
         tr_path = conf['datasets']['train_path']
         te_path = conf['datasets']['test_path']
 
@@ -39,7 +41,7 @@ def get_python_run_commands_from_json(path):
         output_path = conf['output path']
 
         if cls_type == 'fcm':
-            run_command = f'python3 main.py -tr_path {tr_path} -te_path {te_path} {sF} {stF} -c {class_n} -cls {cls_type}{cls_params} --path={output_path}'
+            run_command = f'python3 main.py -tr_path {tr_path} -te_path {te_path} {sF} {stF} -c {class_n} -cls {cls_type}{cls_params} -dn {ds_name} -dims {dims} --path={output_path}'
             run_commands.append(run_command)
             print(run_command)
             print("")
@@ -66,6 +68,8 @@ def prepare_python_run_commands():
 
         json_dict = {
             "datasets": {
+                "name": "UWave",
+                "dimensions": 3,
                 "train_path": "/Users/miloszwrzesien/Downloads/UWaveGestureLibrary/UWaveGestureLibrary_TRAIN.arff",
                 "test_path": "/Users/miloszwrzesien/Downloads/UWaveGestureLibrary/UWaveGestureLibrary_TEST.arff",
                 "method": {
@@ -82,6 +86,9 @@ def prepare_python_run_commands():
     final = dict({"configs": configs})
     with open('data.json', 'w') as fp:
         json.dump(final, fp)
+
+def get_test_run_commands():
+    pass
     
 
 prepare_python_run_commands()

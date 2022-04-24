@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from util import data_prep, metrics, squashing_functions, weight_optimization, window_steps, window_transforms
 
 
-def main(ts, test_file=None, arff=True,):
+def test_fcm(ts, test_file=None, arff=True,):
     if not os.path.exists(ts):
         print("Output folder not found or no test id given")
         return
@@ -53,7 +53,15 @@ def main(ts, test_file=None, arff=True,):
             test_errors['rmse'].append(metrics.rmse(step_i['y'], yt))
             test_errors['mpe'].append(metrics.mpe(step_i['y'], yt))
             test_errors['max_pe'].append(metrics.max_pe(step_i['y'], yt))
-    print(f'test file: {te}, rmse: {np.array(test_errors["rmse"]).mean()}, mpe: {np.array(test_errors["mpe"]).mean()} max_pe: {np.array(test_errors["max_pe"]).mean()}')
+
+    train_summary['test results'][f'{te[0]}'] = {
+        'rmse': np.array(test_errors["rmse"]).mean(),
+        'mpe': np.array(test_errors["mpe"]).mean(),
+        'max_pe': np.array(test_errors["max_pe"]).mean()
+    }
+
+    with open(ts, 'w') as f:
+        json.dump(train_summary, f)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fuzzy Cognitive Mapping testing')
@@ -62,4 +70,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    main(args.ts, args.tf)
+    test_fcm(args.ts, args.tf)

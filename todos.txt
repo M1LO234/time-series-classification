@@ -29,8 +29,8 @@ testing:
 
 main:
     -> saving results✅
-    -> universal file naming
-    -> passing dimensions of timseries as a parameter
+    -> universal file naming✅
+    -> passing dimensions of timeseries as a parameter✅
 
 -> early stopping
 -> get rid of nans
@@ -45,3 +45,6 @@ input file with parameters:
     -> output path
 
 script for generating input files
+
+util/results_aggregation:
+    -> perform results aggregation based on resulting .json files
