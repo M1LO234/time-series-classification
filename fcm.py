@@ -83,7 +83,7 @@ def fcm(args):
                                                                                         rescLimits=rescaleLimits)
         else:
             train_series_set, test_series_set, train_file, test_file = data_prep.import_from_arff(train_path=train_path, test_path=test_path,
-                                                                                classif=class_n, dims=dimensions, specificFiles=specFiles,
+                                                                                class_train=class_n, dims=dimensions, specificFiles=specFiles,
                                                                                 specTestFile=specTestFile, min_max_scale=min_max_sc)
 
         ts = f'{ds_name}_{cls_type}_{modearg}_{errorarg}_{steparg}_w{windowarg}{"_ua" if ua else ""}_c{class_n}_{"-".join([str(tf) for tf in train_file])}'
@@ -135,6 +135,7 @@ def fcm(args):
                 'aggregation': agg_weights.tolist() if type(agg_weights) == np.ndarray else None,
                 'fcm': weights.tolist()
             },
+            "train results": {},
             "test results": {},
             'results': {
                 'final error': loop_error,

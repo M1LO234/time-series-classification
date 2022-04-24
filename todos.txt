@@ -17,6 +17,7 @@ util/data_prep:
     -> read from arffs (using read_file module)✅
     -> add rescaling to data read from arff✅
     -> add support for rescaling limits for arff files
+    -> get test files from different class✅
 
 preprocessing/read_file:
     -> read dimensions from different files OR 
@@ -25,7 +26,7 @@ preprocessing/read_file:
 
 testing:
     -> modify code to perform testing on arff data✅
-    -> calculate errors
+    -> calculate errors✅
 
 main:
     -> saving results✅
@@ -34,6 +35,7 @@ main:
 
 -> early stopping
 -> get rid of nans
+-> passing files as ranges (23-34: means files 23,24,25,...,34)
 -> get this module ready to perform our previous calculations
 
 input file with parameters:
@@ -47,4 +49,4 @@ input file with parameters:
 script for generating input files
 
 util/results_aggregation:
-    -> perform results aggregation based on resulting .json files
+    -> perform results aggregation based on resulting .json files🟧

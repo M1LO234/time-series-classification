@@ -1,13 +1,24 @@
 import json
 import argparse
+from locale import currency
 import os
 import numpy as np
 from matplotlib import pyplot as plt
 
 from util import data_prep, metrics, squashing_functions, weight_optimization, window_steps, window_transforms
 
+# helper
+def check_dict_for_key(key, dictionary, remove_existing_val=False):
+    if key not in dictionary:
+        dictionary[key] = {}
+        return dictionary
+    elif remove_existing_val:
+        dictionary[key] = {}
+        return dictionary
+    else:
+        return dictionary
 
-def test_fcm(ts, test_file=None, arff=True,):
+def test_fcm(ts, test_file=None, class_test=None, arff=True):
     if not os.path.exists(ts):
         print("Output folder not found or no test id given")
         return
@@ -15,10 +26,15 @@ def test_fcm(ts, test_file=None, arff=True,):
     with open(ts, "r") as f:
         train_summary = json.load(f)
 
+    class_train = train_summary['files']['class']
+    if class_test:
+        class_test = int(class_test)
+
     if arff:
         train_series_set, test_series, tr, te = data_prep.import_from_arff(train_path=train_summary['files']['train path'],
                                                                 test_path=train_summary['files']['test path'],
-                                                                classif=train_summary['files']['class'], 
+                                                                class_train=class_train, 
+                                                                class_test=class_test,
                                                                 dims=3, 
                                                                 specificFiles=train_summary['files']['training'],
                                                                 specTestFile=train_summary['files']['testing'] if test_file is None else test_file, 
@@ -30,7 +46,7 @@ def test_fcm(ts, test_file=None, arff=True,):
             train_summary['files']['testing'] if test_file is None else test_file,
             train_summary["files"]["train path"],
             train_summary['files']['test path'],
-            train_summary["files"]["class"]
+            class_train
         )
 
     if train_summary['weights']['aggregation']:
@@ -41,6 +57,7 @@ def test_fcm(ts, test_file=None, arff=True,):
     series = [test_series]
     series.extend(train_series_set)
 
+    overall_results = dict()
     for i, series in enumerate(series):
         test_errors = {'rmse': [], 'mpe': [], 'max_pe': []}
         for step_i in getattr(window_steps, train_summary['config']['step'])(series, train_summary['config']['window size']):
@@ -53,12 +70,38 @@ def test_fcm(ts, test_file=None, arff=True,):
             test_errors['rmse'].append(metrics.rmse(step_i['y'], yt))
             test_errors['mpe'].append(metrics.mpe(step_i['y'], yt))
             test_errors['max_pe'].append(metrics.max_pe(step_i['y'], yt))
+        overall_results[i] = test_errors
 
-    train_summary['test results'][f'{te[0]}'] = {
-        'rmse': np.array(test_errors["rmse"]).mean(),
-        'mpe': np.array(test_errors["mpe"]).mean(),
-        'max_pe': np.array(test_errors["max_pe"]).mean()
-    }
+    curr_test_class_key = f'{class_test if class_test else class_train}'
+    train_res = dict()
+
+    if str(class_train) in list(train_summary['train results'].keys()):
+        overall_results = [overall_results[0]]
+    for i in range(len(overall_results)):
+        if i == 0:
+            res_key = 'test results'
+            file_key = f'{te[0]}'
+        else:
+            res_key = 'train results'
+            file_key = f'{tr[i-1]}'
+            curr_test_class_key = class_train
+        
+        # if i > 0 and curr_test_class_key in list(train_summary[res_key].keys()):
+        #     print(len(list(train_summary[res_key][curr_test_class_key])), list(train_summary[res_key].keys()))
+
+        # if i > 0 and curr_test_class_key in list(train_summary[res_key].keys()) and len(list(train_summary[res_key][curr_test_class_key].keys())) == len(tr):
+        #     continue
+
+        train_summary[res_key] = check_dict_for_key(curr_test_class_key, train_summary[res_key])
+        train_summary[res_key][curr_test_class_key][file_key] = {
+            'rmse': np.array(overall_results[i]["rmse"]).mean(),
+            'mpe': np.array(overall_results[i]["mpe"]).mean(),
+            'max_pe': np.array(overall_results[i]["max_pe"]).mean()
+        }
+    # cleanup
+    # if len(train_summary[res_key][curr_test_class_key]) > 1:
+    #     print('clean')
+    #     train_summary[res_key][curr_test_class_key] = dict(zip(train_summary[res_key][curr_test_class_key]))
 
     with open(ts, 'w') as f:
         json.dump(train_summary, f)

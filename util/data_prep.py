@@ -62,11 +62,14 @@ def import_from_dataset(amount=1, train_path='UWaveGestureLibrary/Train', test_p
     train_series_set, test_series = import_and_transform(train_files, test_files[0], train_path, test_path, classif, min_max_scale=min_max_scale, rescLimits=rescLimits)
     return train_series_set, test_series, train_files, test_files
 
-def import_from_arff(train_path, test_path, classif=1, dims=1, specificFiles=None, specTestFile=None, min_max_scale=None, rescLimits=None):
+def import_from_arff(train_path, test_path, class_train=1, class_test=None, dims=1, specificFiles=None, specTestFile=None, min_max_scale=None, rescLimits=None):
+    if not class_test:
+        class_test = class_train
+    
     if dims > 1:
-        test_files_amount = len(read_multivariate(test_path, [classif]))
+        test_files_amount = len(read_multivariate(test_path, [class_test]))
     elif dims == 1:
-        test_files_amount = len(read_univariate(test_path, [classif]))
+        test_files_amount = len(read_univariate(test_path, [class_test]))
 
     if specificFiles:
         if isinstance(specificFiles, list):
@@ -82,11 +85,11 @@ def import_from_arff(train_path, test_path, classif=1, dims=1, specificFiles=Non
 
     # read time series from file
     if dims > 1:
-        train_series_set = read_multivariate(train_path, [classif], spec_train_files)
-        test_series_set = read_multivariate(test_path, [classif], spec_test_file)
+        train_series_set = read_multivariate(train_path, [class_train], spec_train_files)
+        test_series_set = read_multivariate(test_path, [class_test], spec_test_file)
     elif dims == 1:
-        train_series_set = expand_series(read_univariate(train_path, [classif], spec_train_files))
-        test_series_set = expand_series(read_univariate(test_path, [classif], spec_test_file))
+        train_series_set = expand_series(read_univariate(train_path, [class_train], spec_train_files))
+        test_series_set = expand_series(read_univariate(test_path, [class_test], spec_test_file))
 
     # rescaling
     all_series = np.concatenate(([tr for tr in train_series_set], test_series_set))
