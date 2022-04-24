@@ -51,7 +51,7 @@ def get_python_run_commands_from_json(path):
 def prepare_python_run_commands():
     configs = []
     cls_params_lists = []
-    cls_params = {"-m": ["inner", "outer"], "-e": ["rmse"], "-s": ["distinct", "overlap"], "-i": ["3"]}
+    cls_params = {"-m": ["inner", "outer"], "-e": ["rmse"], "-s": ["distinct", "overlap"], "-i": ["30"]}
     cls_param_grid = list(ParameterGrid(cls_params))
     cls_param_keys = list(cls_params.keys())
     for c_p in cls_param_grid:

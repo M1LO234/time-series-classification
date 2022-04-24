@@ -5,16 +5,29 @@ import argparse
 from fcm import fcm
 from testing import test_fcm
 
+# helper
 def list_from_str(string):
     return string.split(',')
 
-def main(args, mtf, mtf_class=None):
-    res_file = fcm(args)
+def list_from_str_params(string):
+    if ',' in string:
+        return list_from_str(string)
+    else:
+        return [string]
+
+def main(args, mtf, mtf_class=None, res_file=None):
+    if not res_file:
+        res_file = fcm(args)
+
+    if mtf_class:
+        mtf_class = list_from_str_params(mtf_class)
+    else:
+        mtf_class = [None]
 
     if mtf:
-        for tf in list_from_str(mtf):
-            test_fcm(res_file, test_file=tf, class_test=mtf_class)
-        test_fcm(res_file, test_file=tf, class_test=0)
+        for mtf_cl in mtf_class:
+            for tf in list_from_str(mtf):
+                test_fcm(res_file, test_file=tf, class_test=mtf_cl)
     else:
         test_fcm(res_file)
 
@@ -47,12 +60,13 @@ if __name__ == '__main__':
     parser.add_argument("-pt", dest="pt", type=str, default='random', choices=['random', 'sequential'], help="The method of passing files to training (random, sequential)")
     parser.add_argument("-ua", dest="ua", action='store_true', help="Use aggregation in fcm training")
     parser.add_argument("-mtf", dest="testing_files", help="Multiple testing files")
-    parser.add_argument("-mtf_class", dest="testing_files_class", help="Class of multiple testing files")
+    parser.add_argument("-mtf_class", dest="testing_files_class", help="Classes of multiple testing files")
+    parser.add_argument("-res_file", dest="res_file", help="Result file - .json")
 
     args = parser.parse_args()
     argu =  args.cls_type, args.step, args.transform, args.error, args.mode, args.iter, args.pi, \
             args.window, args.amount, args.savepath, args.dataset, args.ds_name, args.dimensions, \
             args.tr_path, args.te_path, args.specFiles, args.specTestFile, args.rescaleLimits, \
             args.min_max_sc, args.c, args.pt, args.ua
-    main(argu, args.testing_files, args.testing_files_class)
+    main(argu, args.testing_files, args.testing_files_class, res_file=args.res_file)
 

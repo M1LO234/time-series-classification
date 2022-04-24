@@ -73,8 +73,6 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True):
         overall_results[i] = test_errors
 
     curr_test_class_key = f'{class_test if class_test else class_train}'
-    train_res = dict()
-
     if str(class_train) in list(train_summary['train results'].keys()):
         overall_results = [overall_results[0]]
     for i in range(len(overall_results)):
@@ -85,12 +83,6 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True):
             res_key = 'train results'
             file_key = f'{tr[i-1]}'
             curr_test_class_key = class_train
-        
-        # if i > 0 and curr_test_class_key in list(train_summary[res_key].keys()):
-        #     print(len(list(train_summary[res_key][curr_test_class_key])), list(train_summary[res_key].keys()))
-
-        # if i > 0 and curr_test_class_key in list(train_summary[res_key].keys()) and len(list(train_summary[res_key][curr_test_class_key].keys())) == len(tr):
-        #     continue
 
         train_summary[res_key] = check_dict_for_key(curr_test_class_key, train_summary[res_key])
         train_summary[res_key][curr_test_class_key][file_key] = {
@@ -98,10 +90,6 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True):
             'mpe': np.array(overall_results[i]["mpe"]).mean(),
             'max_pe': np.array(overall_results[i]["max_pe"]).mean()
         }
-    # cleanup
-    # if len(train_summary[res_key][curr_test_class_key]) > 1:
-    #     print('clean')
-    #     train_summary[res_key][curr_test_class_key] = dict(zip(train_summary[res_key][curr_test_class_key]))
 
     with open(ts, 'w') as f:
         json.dump(train_summary, f)
