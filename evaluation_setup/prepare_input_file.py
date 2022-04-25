@@ -41,17 +41,21 @@ def get_python_run_commands_from_json(path):
         output_path = conf['output path']
 
         if cls_type == 'fcm':
-            run_command = f'python3 main.py -tr_path {tr_path} -te_path {te_path} {sF} {stF} -c {class_n} -cls {cls_type}{cls_params} -dn {ds_name} -dims {dims} --path={output_path}'
+            # run_command = f'python3 main.py -tr_path {tr_path} -te_path {te_path} {sF} {stF} -c {class_n} -cls {cls_type}{cls_params} -dn {ds_name} -dims {dims} --path={output_path}'
+            # tmp
+            run_command = f'python3 main.py -tr_path {tr_path} -te_path {te_path} -ua {sF} {stF} -c {class_n} -cls {cls_type}{cls_params} -dn {ds_name} -dims {dims} --path={output_path} -mtf 0,1,2,3 -mtf_class 0,4'
             run_commands.append(run_command)
-            print(run_command)
-            print("")
+            with open('run_commands.txt', 'w') as fp:
+                final_com = " & ".join(run_commands) + ' & wait'
+                fp.write(final_com)
+    print(len(run_commands))
 
 
-# todo: function that creates json file for specific configurations
+# function that creates json file for specific configurations
 def prepare_python_run_commands():
     configs = []
     cls_params_lists = []
-    cls_params = {"-m": ["inner", "outer"], "-e": ["rmse"], "-s": ["distinct", "overlap"], "-i": ["30"]}
+    cls_params = {"-m": ["inner", "outer"], "-e": ["rmse", "mpe"], "-i": ["20"], "-w": ["2","4"], "-pt": ["sequential"]}
     cls_param_grid = list(ParameterGrid(cls_params))
     cls_param_keys = list(cls_params.keys())
     for c_p in cls_param_grid:
@@ -62,9 +66,10 @@ def prepare_python_run_commands():
 
     param_grid = list(ParameterGrid({
         "class": [0],
-        "classifier_params": cls_params_lists
+        "classifier_params": cls_params_lists,
+        "train": [[0], [0,1], [0,1,2,3]]
     }))
-    for p in param_grid:
+    for conf_id, p in enumerate(param_grid):
 
         json_dict = {
             "datasets": {
@@ -73,14 +78,14 @@ def prepare_python_run_commands():
                 "train_path": "/Users/miloszwrzesien/Downloads/UWaveGestureLibrary/UWaveGestureLibrary_TRAIN.arff",
                 "test_path": "/Users/miloszwrzesien/Downloads/UWaveGestureLibrary/UWaveGestureLibrary_TEST.arff",
                 "method": {
-                    "train": [0,1],
+                    "train": p["train"],
                     "test": [1]
                 }
             },
             "class": p["class"],
             "classifier": "fcm",
             "classifier parameters": p["classifier_params"],
-            "output path": "out_test"
+            "output path": f"25_04_seq_agg/25_04_conf{conf_id}"
         }
         configs.append(json_dict)
     final = dict({"configs": configs})

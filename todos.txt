@@ -50,3 +50,7 @@ script for generating input files
 
 util/results_aggregation:
     -> perform results aggregation based on resulting .json files🟧
+    -> 
+
+25.04:
+    -> save preds and real test values for some configs✅
