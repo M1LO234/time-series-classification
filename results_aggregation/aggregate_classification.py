@@ -1,10 +1,17 @@
 from email import header
+from genericpath import exists
 import os
 import json
 import pandas as pd
+import numpy as np
 
 def float_to_num_with_comma(val):
     return str(val).replace('.', ',')
+
+def voted_results(arr):
+    indexes = np.argmin(arr, axis=0)
+    counts = np.bincount(indexes)
+    return np.argmax(counts)
 
 def iterate_over_dirs(main_dir, out_dir, range_dirs: list=None):
     list_dirs = os.listdir(main_dir)
@@ -28,36 +35,52 @@ def aggregate_from_json(json_path, output_path, configuration_name):
     with open(json_path, 'r') as f:
         con = json.load(f)
 
-    out_csv_path = output_path+'.csv'
-    out_txt_path = output_path+'_configs.csv'
+    curr_dir = output_path+'/'
+    if not os.path.exists(curr_dir):
+        os.mkdir(curr_dir)
+
+    out_csv_path = output_path+'/'+output_path.split('/')[-1]+'.csv'
+    out_txt_path = output_path+'/'+output_path.split('/')[-1]+'_configs.csv'
+    out_summary_path = output_path+'/'+output_path.split('/')[-1]+'_summary.csv'
+    no_files = len(con['files']['training'])
 
     # save configuration description
     conf_values = list(con['config'].keys())
-    cols_conf = ['conf']+conf_values
-    curr_conf_values = [configuration_name] + [str(con['config'][k]) for k in conf_values]
+    cols_conf = ['conf', 'no. train files']+conf_values
+    curr_conf_values = [configuration_name, no_files] + [str(con['config'][k]) for k in conf_values]
     df = pd.DataFrame([curr_conf_values], columns=cols_conf)
-    df.to_csv(out_txt_path, mode='a', header=not os.path.exists(out_txt_path) , sep=';')
+    df.to_csv(out_txt_path, mode='a', header=not os.path.exists(out_txt_path) , sep=';', index=False)
 
-    # return 
-    cols = ['conf', 'train file(s)', 'train class', 'test file', 'test class', 'mean rmse', 'mean mpe', 'mean max_pe']
+    cols = ['conf', 'no. train files', 'train file(s)', 'train class', 'test file', 'test class', 'mean rmse', 'mean mpe', 'mean max_pe']
     classes_tested = list(con['test results'].keys())
-    conf_results = []
+    conf_results, calc_score = [], []
     class_of_train = con['files']['class']
     train_files = ','.join(['_'+str(tr) for tr in con['files']['training']])
-    for class_n in classes_tested:
+    for class_id, class_n in enumerate(classes_tested):
         test_files_for_curr_class = list(con['test results'][class_n].keys())
+        calc_score.append([])
         for test_file in test_files_for_curr_class:
             rmse = con['test results'][class_n][test_file]['rmse'] #todo: reading multiple values (min, mean, max)
             mpe = con['test results'][class_n][test_file]['mpe']
             max_pe = con['test results'][class_n][test_file]['max_pe']
-            curr_line = [configuration_name, train_files, class_of_train, test_file, \
+
+            # classifier scores
+            calc_score[class_id].append([rmse, mpe,max_pe])
+
+            curr_line = [configuration_name, no_files, train_files, class_of_train, test_file, \
                 class_n, float_to_num_with_comma(rmse), float_to_num_with_comma(mpe), \
                     float_to_num_with_comma(max_pe)]
             conf_results.append(curr_line)
+
+        calc_score[class_id] = np.mean(calc_score[class_id], axis=0)
+
     conf_df = pd.DataFrame(conf_results, columns=cols)
-    conf_df.to_csv(out_csv_path, mode='a', header=not os.path.exists(out_csv_path), sep=';')
+    conf_df.to_csv(out_csv_path, mode='a', header=not os.path.exists(out_csv_path), sep=';', index=False)
 
-
+    # prediction based on voting
+    pred_class = classes_tested[voted_results(calc_score)]
+    pred_df = pd.DataFrame([[configuration_name, class_of_train, pred_class]], columns=['configuration', 'real class', 'prediction'])
+    pred_df.to_csv(out_summary_path, mode='a', header=not os.path.exists(out_summary_path), sep=';', index=False)
 
 
 out_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results_agg'
