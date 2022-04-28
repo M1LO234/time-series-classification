@@ -63,7 +63,7 @@ def import_from_dataset(amount=1, train_path='UWaveGestureLibrary/Train', test_p
     return train_series_set, test_series, train_files, test_files
 
 def import_from_arff(train_path, test_path, class_train=1, class_test=None, dims=1, specificFiles=None, specTestFile=None, min_max_scale=None, rescLimits=None):
-    if not class_test:
+    if class_test == None:
         class_test = class_train
     
     if dims > 1:

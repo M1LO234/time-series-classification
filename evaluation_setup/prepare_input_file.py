@@ -43,9 +43,9 @@ def get_python_run_commands_from_json(path):
         if cls_type == 'fcm':
             # run_command = f'python3 main.py -tr_path {tr_path} -te_path {te_path} {sF} {stF} -c {class_n} -cls {cls_type}{cls_params} -dn {ds_name} -dims {dims} --path={output_path}'
             # tmp
-            run_command = f'python3 main.py -tr_path {tr_path} -te_path {te_path} -ua {sF} {stF} -c {class_n} -cls {cls_type}{cls_params} -dn {ds_name} -dims {dims} --path={output_path} -mtf 0,1,2,3 -mtf_class 0,4'
+            run_command = f'python3 main.py -tr_path {tr_path} -te_path {te_path} {sF} {stF} -c {class_n} -cls {cls_type}{cls_params} -dn {ds_name} -dims {dims} --path={output_path} -mtf 0,1,2,3 -mtf_class 0,4'
             run_commands.append(run_command)
-            with open('run_commands.txt', 'w') as fp:
+            with open('run_commands_seq.txt', 'w') as fp:
                 final_com = " & ".join(run_commands) + ' & wait'
                 fp.write(final_com)
     print(len(run_commands))
@@ -55,7 +55,7 @@ def get_python_run_commands_from_json(path):
 def prepare_python_run_commands():
     configs = []
     cls_params_lists = []
-    cls_params = {"-m": ["inner", "outer"], "-e": ["rmse", "mpe"], "-i": ["20"], "-w": ["2","4"], "-pt": ["sequential"]}
+    cls_params = {"-m": ["inner", "outer"], "-e": ["rmse", "mpe"], "-i": ["20"], "-w": ["2","4"], "-pt": ['sequential']}
     cls_param_grid = list(ParameterGrid(cls_params))
     cls_param_keys = list(cls_params.keys())
     for c_p in cls_param_grid:
@@ -65,7 +65,7 @@ def prepare_python_run_commands():
         cls_params_lists.append(tmp_list)
 
     param_grid = list(ParameterGrid({
-        "class": [0],
+        "class": [4],
         "classifier_params": cls_params_lists,
         "train": [[0], [0,1], [0,1,2,3]]
     }))
@@ -85,7 +85,7 @@ def prepare_python_run_commands():
             "class": p["class"],
             "classifier": "fcm",
             "classifier parameters": p["classifier_params"],
-            "output path": f"25_04_seq_agg/25_04_conf{conf_id}"
+            "output path": f"25_04_class{p['class']}_seq/25_04_conf{conf_id}"
         }
         configs.append(json_dict)
     final = dict({"configs": configs})

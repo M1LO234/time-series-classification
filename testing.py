@@ -31,7 +31,7 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True):
         train_summary = json.load(f)
 
     class_train = train_summary['files']['class']
-    if class_test:
+    if class_test != None:
         class_test = int(class_test)
 
     if arff:
@@ -108,10 +108,7 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True):
     # sc_rm = data_prep.rescale(np.min(n_series), np.max(n_series), None)(te_rm)
     # print(sc_rm[0][:5])
 
-    # return
-
-
-    curr_test_class_key = f'{class_test if class_test else class_train}'
+    curr_test_class_key = f'{class_test if class_test != None else class_train}'
     if str(class_train) in list(train_summary['train results'].keys()):
         overall_results = [overall_results[0]]
     for i in range(len(overall_results)):

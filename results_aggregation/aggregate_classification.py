@@ -14,14 +14,13 @@ def voted_results(arr):
     return np.argmax(counts)
 
 def iterate_over_dirs(main_dir, out_dir, range_dirs: list=None):
-    list_dirs = os.listdir(main_dir)
-    list_dirs = sorted(list_dirs)
+    list_dirs = [cd for cd in os.listdir(main_dir) if '.' not in cd]
     if range_dirs:
         list_dirs = list_dirs[range_dirs[0]:range_dirs[1]]
-    dirs = [os.path.join(main_dir, cd) for cd in list_dirs]
+    dirs = [os.path.join(main_dir, cd) for cd in list_dirs if '.' not in cd]
     
     for dir_id, dir in enumerate(dirs):
-        conf_names = os.listdir(dir)
+        conf_names = [cd for cd in os.listdir(dir) if '.' not in cd]
         conf_names = sorted(conf_names)
         for conf_name in conf_names:
             conf_dir = os.path.join(dir, conf_name)
@@ -71,7 +70,6 @@ def aggregate_from_json(json_path, output_path, configuration_name):
                 class_n, float_to_num_with_comma(rmse), float_to_num_with_comma(mpe), \
                     float_to_num_with_comma(max_pe)]
             conf_results.append(curr_line)
-
         calc_score[class_id] = np.mean(calc_score[class_id], axis=0)
 
     conf_df = pd.DataFrame(conf_results, columns=cols)
@@ -83,6 +81,6 @@ def aggregate_from_json(json_path, output_path, configuration_name):
     pred_df.to_csv(out_summary_path, mode='a', header=not os.path.exists(out_summary_path), sep=';', index=False)
 
 
-out_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results_agg'
-main_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results'
+out_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results_agg/25_04_class4_agg'
+main_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results/25_04_class4'
 iterate_over_dirs(main_dir, out_dir)
