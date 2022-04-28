@@ -5,7 +5,7 @@ import json
 import pandas as pd
 import numpy as np
 
-def float_to_num_with_comma(val):
+def repl_commas(val):
     return str(val).replace('.', ',')
 
 def voted_results(arr):
@@ -50,7 +50,7 @@ def aggregate_from_json(json_path, output_path, configuration_name):
     df = pd.DataFrame([curr_conf_values], columns=cols_conf)
     df.to_csv(out_txt_path, mode='a', header=not os.path.exists(out_txt_path) , sep=';', index=False)
 
-    cols = ['conf', 'no. train files', 'train file(s)', 'train class', 'test file', 'test class', 'mean rmse', 'mean mpe', 'mean max_pe']
+    cols = ['conf', 'no. train files', 'train file(s)', 'train class', 'test file', 'test class', 'min rmse', 'mean rmse', 'min mpe', 'mean mpe', 'min max_pe', 'mean max_pe']
     classes_tested = list(con['test results'].keys())
     conf_results, calc_score = [], []
     class_of_train = con['files']['class']
@@ -64,11 +64,13 @@ def aggregate_from_json(json_path, output_path, configuration_name):
             max_pe = con['test results'][class_n][test_file]['max_pe']
 
             # classifier scores
-            calc_score[class_id].append([rmse, mpe,max_pe])
+            # calc_score[class_id].append([np.array(rmse).mean(), np.array(mpe).mean(), np.array(max_pe).mean()])
+            calc_score[class_id].append([np.array(rmse).min(), np.array(mpe).min(), np.array(max_pe).min()])
 
             curr_line = [configuration_name, no_files, train_files, class_of_train, test_file, \
-                class_n, float_to_num_with_comma(rmse), float_to_num_with_comma(mpe), \
-                    float_to_num_with_comma(max_pe)]
+                class_n, repl_commas(np.array(rmse).min()), repl_commas(np.array(rmse).mean()), \
+                    repl_commas(np.array(mpe).min()), repl_commas(np.array(mpe).mean()), \
+                    repl_commas(np.array(max_pe).min()), repl_commas(np.array(max_pe).mean())]
             conf_results.append(curr_line)
         calc_score[class_id] = np.mean(calc_score[class_id], axis=0)
 
@@ -81,6 +83,6 @@ def aggregate_from_json(json_path, output_path, configuration_name):
     pred_df.to_csv(out_summary_path, mode='a', header=not os.path.exists(out_summary_path), sep=';', index=False)
 
 
-out_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results_agg/25_04_class4_agg'
-main_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results/25_04_class4'
+out_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results_agg'
+main_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results'
 iterate_over_dirs(main_dir, out_dir)

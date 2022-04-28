@@ -39,17 +39,16 @@ main:
 -> get this module ready to perform our previous calculations
 
 input file with parameters:
-    -> dataset tr/te paths
+    -> dataset tr/te paths✅
         -> method of passing files (specific files, random, crossval) (tr and te)
         -> class of training files
-    -> classifier type
+    -> classifier type✅
         -> specific parameters to classifier
-    -> output path
-
-script for generating input files
+    -> output path✅
+    -> script for generating input files✅
 
 util/results_aggregation:
-    -> perform results aggregation based on resulting .json files🟧
+    -> perform results aggregation based on resulting .json files✅
     -> 
 
 25.04:

@@ -18,7 +18,7 @@ def list_from_str_params(string):
 def main(args, mtf, mtf_class=None, res_file=None):
     if not res_file:
         res_file = fcm(args)
-
+    # return
     if mtf_class:
         mtf_class = list_from_str_params(mtf_class)
     else:

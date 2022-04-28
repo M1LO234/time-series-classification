@@ -69,7 +69,7 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True):
         test_errors = {'rmse': [], 'mpe': [], 'max_pe': []}
 
         # tmp
-        saved_preds, real_vals = [], []
+        # saved_preds, real_vals = [], []
 
         for step_i in getattr(window_steps, train_summary['config']['step'])(series, train_summary['config']['window size']):
             yt = weight_optimization.calc(getattr(squashing_functions, train_summary['config']['transformation function'])(),
@@ -79,34 +79,25 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True):
                             agg_weights)
 
             # tmp
-            saved_preds.append(yt)
-            real_vals.append(step_i['y'])
+            # saved_preds.append(yt)
+            # real_vals.append(step_i['y'])
 
             test_errors['rmse'].append(metrics.rmse(step_i['y'], yt))
             test_errors['mpe'].append(metrics.mpe(step_i['y'], yt))
             test_errors['max_pe'].append(metrics.max_pe(step_i['y'], yt))
 
         # tmp: saving preds
-        tmp_saved_preds.append(saved_preds)
-        tmp_real_vals.append(real_vals)
+        # tmp_saved_preds.append(saved_preds)
+        # tmp_real_vals.append(real_vals)
 
         overall_results[i] = test_errors
 
-    # print('files:', tr, te)
-    pred = np.array(tmp_saved_preds[0])
-    real = np.array(tmp_real_vals[0])
-    df = np.concatenate((pred, real), axis=1)
-    df_res = pd.DataFrame(df, columns=['pred_x', 'pred_y', 'pred_z', 'real_x', 'real_y', 'real_z'])
-    csv_path = ts.split('.')[:1][0]+f'_ct_{class_test}_tf{te[0]}.csv'
-    df_res.to_csv(csv_path)
-    # print(df_res.head())
-
-    # te_rm = read_multivariate('/Users/miloszwrzesien/Downloads/UWaveGestureLibrary/UWaveGestureLibrary_TEST.arff', [0], [1])
-    # tr_rm = read_multivariate('/Users/miloszwrzesien/Downloads/UWaveGestureLibrary/UWaveGestureLibrary_TRAIN.arff', [0], [0,1])
-
-    # n_series = np.concatenate((te_rm, tr_rm))
-    # sc_rm = data_prep.rescale(np.min(n_series), np.max(n_series), None)(te_rm)
-    # print(sc_rm[0][:5])
+    # pred = np.array(tmp_saved_preds[0])
+    # real = np.array(tmp_real_vals[0])
+    # df = np.concatenate((pred, real), axis=1)
+    # df_res = pd.DataFrame(df, columns=['pred_x', 'pred_y', 'pred_z', 'real_x', 'real_y', 'real_z'])
+    # csv_path = ts.split('.')[:1][0]+f'_ct_{class_test}_tf{te[0]}.csv'
+    # df_res.to_csv(csv_path)
 
     curr_test_class_key = f'{class_test if class_test != None else class_train}'
     if str(class_train) in list(train_summary['train results'].keys()):
@@ -122,9 +113,9 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True):
 
         train_summary[res_key] = check_dict_for_key(curr_test_class_key, train_summary[res_key])
         train_summary[res_key][curr_test_class_key][file_key] = {
-            'rmse': np.array(overall_results[i]["rmse"]).mean(),
-            'mpe': np.array(overall_results[i]["mpe"]).mean(),
-            'max_pe': np.array(overall_results[i]["max_pe"]).mean()
+            'rmse': overall_results[i]["rmse"],
+            'mpe': overall_results[i]["mpe"],
+            'max_pe': overall_results[i]["max_pe"]
         }
 
     with open(ts, 'w') as f:
