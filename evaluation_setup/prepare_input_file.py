@@ -55,7 +55,7 @@ def prepare_python_run_commands():
     cls_params_lists = []
     # cls_params = {"-m": ["inner", "outer"], "-e": ["rmse", "mpe"], "-i": ["20"], "-w": ["2","4"], "-pt": ['sequential'], "-ua": ['']}
     # cls_params = {"-m": ["inner", "outer"], "-e": ["rmse", "mpe"], "-i": ["20"], "-w": ["2","4"], "-pt": ['sequential']}
-    cls_params = {"-m": ["inner", "outer"], "-e": ["rmse", "mpe"], "-i": ["1"], "-w": ["2","4"]}
+    cls_params = {"-m": ["inner", "outer"], "-e": ["rmse", "mpe"], "-i": ["30"], "-w": ["2", "4"], "-pt": ['sequential']}
     cls_param_grid = list(ParameterGrid(cls_params))
     cls_param_keys = list(cls_params.keys())
     for c_p in cls_param_grid:
@@ -65,9 +65,9 @@ def prepare_python_run_commands():
         cls_params_lists.append(tmp_list)
 
     param_grid = list(ParameterGrid({
-        "class": [4],
+        "class": [4], #todo: save with same conf numbers
         "classifier_params": cls_params_lists,
-        "train": [[0]]#, [0,1], [0,1,2,3]]
+        "train": [[0], [0,1], [0,1,2,3]]
         # "train": [[0], [0,1], [0,1,2,3], [0,1,2,3,4,5,6,7]]
     }))
     for conf_id, p in enumerate(param_grid):
@@ -86,7 +86,7 @@ def prepare_python_run_commands():
             "class": p["class"],
             "classifier": "fcm",
             "classifier parameters": p["classifier_params"],
-            "output path": f"28_04_class{p['class']}/28_04_conf{conf_id}"
+            "output path": f"29_04/29_04_class{p['class']}_conf{conf_id}"
         }
         configs.append(json_dict)
     final = dict({"configs": configs})
