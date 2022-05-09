@@ -1,3 +1,4 @@
+from collections import Counter
 from genericpath import exists
 import os
 import json
@@ -105,7 +106,7 @@ def perform_classification(path):
 
     # classification
     unique_confs = np.unique(dfs[train_classes[0]]['conf'].values)
-    all_preds, real_vals, iter = [], [], []
+    all_preds, real_vals, iter, winning_confs = [], [], [], []
     test_classes = np.unique(dfs[train_classes[0]]['test class'].values)
     for uni in unique_confs:
        for cl in test_classes:
@@ -127,6 +128,10 @@ def perform_classification(path):
         all_preds.append(int(train_classes[np.argmax(counts)]))
         # real_vals.append(dfs[train_classes[0]].loc[(dfs[df_key]['conf'] == conf[0]) & (dfs[df_key]['test class'] == int(conf[1]))]['test class'].values[0]) 
         real_vals.append(dfs[train_classes[0]].iloc[conf]['test class']) 
+        if int(train_classes[np.argmax(counts)]) == dfs[train_classes[0]].iloc[conf]['test class']:
+            winning_confs.append(dfs[train_classes[0]].iloc[conf]['conf'])
+
+    print(Counter(winning_confs))
     print(accuracy(all_preds, real_vals))
 
 

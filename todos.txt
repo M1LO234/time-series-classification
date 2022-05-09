@@ -4,7 +4,7 @@ prepare_train:
 
 prepare_dataset module:
     -> read dataset from file/files/train_test_files
-    -> obtaining multivariate timeseries
+    -> obtaining multivariate timeseries🟠
     -> 
 
 weight_optimization:
@@ -35,12 +35,13 @@ main:
 
 -> early stopping
 -> get rid of nans
--> passing files as ranges (23-34: means files 23,24,25,...,34)
--> get this module ready to perform our previous calculations
+-> passing files as ranges (23-34: means files 23,24,25,...,34)✅
+-> prompting values from user🟠
+-> get this module ready to perform our previous calculations✅
 
 input file with parameters:
     -> dataset tr/te paths✅
-        -> method of passing files (specific files, random, crossval) (tr and te)
+        -> method of passing files (specific files, random) (tr and te)✅
         -> class of training files
     -> classifier type✅
         -> specific parameters to classifier
