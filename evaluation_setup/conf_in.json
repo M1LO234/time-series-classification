@@ -1,0 +1,22 @@
+{
+  "name": "Epilepsy",
+  "dimensions": 3,
+  "train_path": "/Users/miloszwrzesien/Downloads/Epilepsy/Epilepsy_TRAIN.arff",
+  "test_path": "/Users/miloszwrzesien/Downloads/Epilepsy/Epilepsy_TEST.arff",
+  "files": {
+    "method": "random",
+    "train": [[0, 1], [2, 3], [4, 5], "5-7"],
+    "train_samples": 0,
+    "test": [0, 1, 2, 3, 5],
+    "test_classes": [0, 1]
+  },
+  "classes": [0, 1],
+  "classifier": "fcm",
+  "cls_params": {
+    "-m": ["outer", "inner"],
+    "-e": ["mpe"],
+    "-i": ["200"],
+    "-w": ["4"],
+    "-pt": ["sequential"]
+  }
+}
