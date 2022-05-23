@@ -1,6 +1,10 @@
 import os
 import json
+import shutil
+import stat
+import time
 import numpy as np
+from pathlib import Path
 from sklearn.model_selection import ParameterGrid
 from datetime import datetime
 
@@ -14,7 +18,7 @@ def get_files_list_from_json(value):
         return value
 
 
-def get_python_run_commands_from_json(path):
+def get_python_run_commands_from_json(path, flag_params):
     f = open(path)
     con = json.load(f)
     run_commands = []
@@ -25,10 +29,7 @@ def get_python_run_commands_from_json(path):
         tr_path = conf['datasets']['train_path']
         te_path = conf['datasets']['test_path']
 
-        sF = None
-        stF = None
-        mtf = None
-        mtf_cl = None
+        sF, stF, mtf, mtf_cl = None, None, "", ""
         if conf['datasets']['files']['method'] == 'random':
             sF = f"-sF {list_to_str(list(np.random.choice(get_files_list_from_json(conf['datasets']['files']['train']), conf['datasets']['files']['train_samples'], replace=False)))}"
             stF = f"-stF {list_to_str(conf['datasets']['files']['test'])}" if len(conf['datasets']['files']['train']) > 0 else ""
@@ -53,59 +54,25 @@ def get_python_run_commands_from_json(path):
         output_path = conf['output path']
 
         if cls_type == 'fcm':
-            run_command = f'python3 main.py -tr_path {tr_path} -te_path {te_path} {sF} {stF} -ua -c {class_n} -cls {cls_type}{cls_params} -dn {ds_name} -dims {dims} --path={output_path} {mtf} {mtf_cl}'
+            run_command = f'python3 main.py -tr_path {tr_path} -te_path {te_path} {sF} {stF} {" ".join(flag_params)+" " if len(flag_params) > 0 else ""}-c {class_n} -cls {cls_type}{cls_params} -dn {ds_name} -dims {dims} --path={output_path} {mtf} {mtf_cl}'
             run_commands.append(run_command)
-            with open(f'run_commands_seq{conf["class"]}.txt', 'w') as fp:
-                final_com = " & ".join(run_commands) + ' & wait'
-                fp.write(final_com)
+            run_f_name = f'{conf["classifier"]}_{conf["class"]}_{int(time.time())}.sh'
+        elif cls_type == "":
+            # TODO: add commands for another classifiers
+            pass
+
+        with open(run_f_name, 'w') as fp:
+            final_com = " & ".join(run_commands) + ' & wait'
+            fp.write(final_com)
+
+        st = os.stat(run_f_name)
+        os.chmod(run_f_name, st.st_mode | stat.S_IEXEC)
+
+    abs_f_path = os.path.join(os.getcwd(), run_f_name)
+    parent_dir = Path(abs_f_path).parents[1]
+    shutil.move(abs_f_path, parent_dir)
+            
     print(len(run_commands))
-
-
-# function that creates json file for specific configurations
-def prepare_python_run_commands():
-    configs = []
-    cls_params_lists = []
-    cls_params = {"-m": ["outer"], "-e": ["mpe"], "-i": ["200"], "-w": ["4"], "-pt": ['sequential']}
-    cls_param_grid = list(ParameterGrid(cls_params))
-    cls_param_keys = list(cls_params.keys())
-    for c_p in cls_param_grid:
-        tmp_list = []
-        for k in cls_param_keys:
-            tmp_list.append([k, c_p[k]])
-        cls_params_lists.append(tmp_list)
-
-    param_grid = list(ParameterGrid({
-        "class": [1], #todo: save with same conf numbers
-        "classifier_params": cls_params_lists,
-        "train": [[0,1], [2,3], [4,5], "4-7"]#, [0,1,2,3,4,5,6,7]]
-    }))
-
-    dataset_name = "Epilepsy"
-    day_month = datetime.now().strftime("%d_%m")
-
-    for conf_id, p in enumerate(param_grid):
-
-        json_dict = {
-            "datasets": {
-                "name": dataset_name,
-                "dimensions": 3,
-                "train_path": "/Users/miloszwrzesien/Downloads/Epilepsy/Epilepsy_TRAIN.arff",
-                "test_path": "/Users/miloszwrzesien/Downloads/Epilepsy/Epilepsy_TEST.arff",
-                "files": {
-                    "method": "specific",
-                    "train": p["train"],
-                    "test": [1]
-                }
-            },
-            "class": p["class"],
-            "classifier": "fcm",
-            "classifier parameters": p["classifier_params"],
-            "output path": f"{day_month}_{dataset_name}_class{p['class']}/{day_month}_{dataset_name}_class{p['class']}_conf{conf_id}"
-        }
-        configs.append(json_dict)
-    final = dict({"configs": configs})
-    with open('data.json', 'w') as fp:
-        json.dump(final, fp)
 
 def get_test_run_commands():
     pass
@@ -116,7 +83,8 @@ def get_input_from_user(json_path):
 
     for c in con["classes"]:
         configs, cls_params_lists = [], []
-        cls_params = con['cls_params']
+        cls_params = dict([(key, value) for key, value in con['cls_params'].items() if key not in ['-flag_params']])
+        flag_params = con['cls_params']['-flag_params'] if '-flag_params' in list(con['cls_params']) else []
         cls_param_grid = list(ParameterGrid(cls_params))
         cls_param_keys = list(cls_params.keys())
         for c_p in cls_param_grid:
@@ -133,7 +101,6 @@ def get_input_from_user(json_path):
         day_month = datetime.now().strftime("%d_%m")
 
         for conf_id, p in enumerate(param_grid):
-
             json_dict = {
                 "datasets": {
                     "name": con["name"],
@@ -158,7 +125,7 @@ def get_input_from_user(json_path):
         out_name = f'data{c}.json'
         with open(out_name, 'w') as fp:
             json.dump(final, fp)
-        get_python_run_commands_from_json(out_name)
+        get_python_run_commands_from_json(out_name, flag_params)
 
 conf_in = "/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_module_modification/evaluation_setup/conf_in.json"
 get_input_from_user(conf_in)

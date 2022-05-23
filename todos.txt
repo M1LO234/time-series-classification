@@ -41,7 +41,7 @@ main:
 
 input file with parameters:
     -> dataset tr/te paths✅
-        -> method of passing files (specific files, random) (tr and te)✅
+        -> method of passing files (specific files, random✅, crossval🟠) (tr and te)
         -> class of training files
     -> classifier type✅
         -> specific parameters to classifier
@@ -54,3 +54,5 @@ util/results_aggregation:
 
 25.04:
     -> save preds and real test values for some configs✅
+
+-> using same train files for different classes (for random and crossval)

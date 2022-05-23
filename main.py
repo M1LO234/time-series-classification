@@ -2,7 +2,7 @@ import json
 import os
 import argparse
 
-from fcm import fcm
+from models.fcm import fcm
 from testing import test_fcm
 
 # helper
