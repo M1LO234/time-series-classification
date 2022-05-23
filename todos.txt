@@ -49,7 +49,7 @@ util/results_aggregation:
     -> perform results aggregation based on resulting .json files✅
     -> 
 
-models/image_method:
+models/image_recognition:
     -> create modular CNN
     -> return specific .json with results of each prediction
 

@@ -1,9 +1,6 @@
 import json
 import os
 import numpy as np
-from matplotlib import pyplot as plt
-import argparse
-
 from prepare_train import fcm_train
 from util.fcm_util import data_prep, metrics, squashing_functions, weight_optimization, window_steps
 
