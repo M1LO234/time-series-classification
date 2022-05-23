@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 
-from util import data_prep, metrics, squashing_functions, weight_optimization, window_steps, window_transforms
+from util.fcm_util import data_prep, metrics, squashing_functions, weight_optimization, window_steps, window_transforms
 
 # tmp
 from util.preprocessing.read_file import read_multivariate

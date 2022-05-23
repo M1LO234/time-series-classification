@@ -5,7 +5,6 @@ prepare_train:
 prepare_dataset module:
     -> read dataset from file/files/train_test_files
     -> obtaining multivariate timeseries🟠
-    -> 
 
 weight_optimization:
     -> other methods of optimization
@@ -33,8 +32,6 @@ main:
     -> universal file naming✅
     -> passing dimensions of timeseries as a parameter✅
 
--> early stopping
--> get rid of nans
 -> passing files as ranges (23-34: means files 23,24,25,...,34)✅
 -> prompting values from user✅
 -> get this module ready to perform our previous calculations✅
@@ -52,7 +49,11 @@ util/results_aggregation:
     -> perform results aggregation based on resulting .json files✅
     -> 
 
-25.04:
-    -> save preds and real test values for some configs✅
+models/image_method:
+    -> create modular CNN
+    -> return specific .json with results of each prediction
 
--> using same train files for different classes (for random and crossval)
+
+-> using same train files for different classes (for random and crossval)🟠
+-> early stopping
+-> get rid of nans

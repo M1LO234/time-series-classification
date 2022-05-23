@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import argparse
 
 from prepare_train import fcm_train
-from util import data_prep, metrics, squashing_functions, weight_optimization, window_steps
+from util.fcm_util import data_prep, metrics, squashing_functions, weight_optimization, window_steps
 
 def fcm(args):
     # reading passed arguments

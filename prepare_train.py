@@ -2,7 +2,7 @@ import random
 import numpy as np
 from tqdm import trange
 
-from util import window_transforms
+from util.fcm_util import window_transforms
 
 def fcm_train(train_series_set, step, transition_func, error, mode, max_iter, performance_index,
             window, use_aggregation=False, get_best_weights=False, passing_files_method='random'):

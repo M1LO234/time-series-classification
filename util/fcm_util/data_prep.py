@@ -2,8 +2,8 @@ import csv
 import os
 import random
 import numpy as np
-from .preprocessing.read_file import read_multivariate, read_univariate
-from .preprocessing.get_multivariate import expand_series
+from ..preprocessing.read_file import read_multivariate, read_univariate
+from ..preprocessing.get_multivariate import expand_series
 
 
 def rescale(min, max, min_max_scale):
