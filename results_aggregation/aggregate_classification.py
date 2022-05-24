@@ -6,7 +6,7 @@ import numpy as np
 def repl_commas(val):
     return str(val).replace('.', ',')
 
-def voted_results(arr): #
+def voted_results(arr):
     indexes = np.argmin(arr, axis=0)
     counts = np.bincount(indexes)
     return np.argmax(counts)

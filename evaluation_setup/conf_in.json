@@ -8,13 +8,13 @@
     "train": [[0, 1]],
     "train_samples": 2,
     "test": [0, 1, 2, 3, 5],
-    "test_classes": [0]
+    "test_classes": [0, 1]
   },
-  "classes": [0],
+  "classes": [0, 1],
   "classifier": "fcm",
   "cls_params": {
     "-m": ["outer"],
-    "-e": ["mpe"],
+    "-e": ["mpe", "max_pe"],
     "-i": ["1"],
     "-w": ["16"],
     "-pt": ["random"]

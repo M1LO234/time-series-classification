@@ -47,12 +47,14 @@ input file with parameters:
 
 util/results_aggregation:
     -> perform results aggregation based on resulting .json files✅
-    -> 
+
 
 models/image_recognition:
     -> create modular CNN
     -> return specific .json with results of each prediction
 
+results_aggregation/classification_score:
+    -> create universal model voting for class predictions
 
 -> using same train files for different classes (for random and crossval)🟠
 -> early stopping
