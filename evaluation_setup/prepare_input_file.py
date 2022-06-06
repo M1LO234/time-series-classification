@@ -79,7 +79,7 @@ def get_python_run_commands_from_json(path, flag_params):
 def get_test_run_commands():
     pass
 
-def get_input_from_user(json_path):
+def get_input_from_user(json_path, out_file_name):
     with open(json_path, 'r') as f:
         con = json.load(f)
 
@@ -101,7 +101,7 @@ def get_input_from_user(json_path):
             "classifier_params": cls_params_lists,
             "train": con["files"]["train"]
         }))
-        day_month = datetime.now().strftime("%d_%m")
+        day_month = datetime.now().strftime("%d_%m_%H_%M")
 
         for conf_id, p in enumerate(param_grid):
             json_dict = {
@@ -132,14 +132,15 @@ def get_input_from_user(json_path):
         commands += f'./{file_name} & \n'
     commands += ' wait'
 
-    with open('curr_exec.sh', 'w') as fp:
+    # todo: add eden script
+    with open(f'{out_file_name}.sh', 'w') as fp:
         fp.write(commands)
-    st = os.stat('curr_exec.sh')
-    os.chmod('curr_exec.sh', st.st_mode | stat.S_IEXEC)
-    abs_f_path = os.path.join(os.getcwd(), 'curr_exec.sh')
+    st = os.stat(f'{out_file_name}.sh')
+    os.chmod(f'{out_file_name}.sh', st.st_mode | stat.S_IEXEC)
+    abs_f_path = os.path.join(os.getcwd(), f'{out_file_name}.sh')
     parent_dir = Path(abs_f_path).parents[1]
     shutil.move(abs_f_path, parent_dir)
 
 if __name__ == '__main__':
     args = sys.argv[1:]
-    get_input_from_user(args[0])
+    get_input_from_user(args[0], args[1])

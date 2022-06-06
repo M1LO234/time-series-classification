@@ -43,7 +43,9 @@ def aggregate_from_json(json_path, output_path, configuration_name):
     # save configuration description
     conf_values = list(con['config'].keys())
     cols_conf = ['conf', 'no. train files']+conf_values
-    curr_conf_values = [configuration_name, no_files] + [str(con['config'][k]) for k in conf_values]
+    train_files = ','.join(['_'+str(tr) for tr in con['files']['training']])
+
+    curr_conf_values = [configuration_name, train_files] + [str(con['config'][k]) for k in conf_values]
     df = pd.DataFrame([curr_conf_values], columns=cols_conf)
     df.to_csv(out_txt_path, mode='a', header=not os.path.exists(out_txt_path) , sep=';', index=False)
 
@@ -51,18 +53,17 @@ def aggregate_from_json(json_path, output_path, configuration_name):
     classes_tested = list(con['test results'].keys())
     conf_results, calc_score = [], []
     class_of_train = con['files']['class']
-    train_files = ','.join(['_'+str(tr) for tr in con['files']['training']])
     for class_id, class_n in enumerate(classes_tested):
         test_files_for_curr_class = list(con['test results'][class_n].keys())
         calc_score.append([])
         for test_file in test_files_for_curr_class:
-            rmse = con['test results'][class_n][test_file]['rmse'] #todo: reading multiple values (min, mean, max)
+            rmse = con['test results'][class_n][test_file]['rmse']
             mpe = con['test results'][class_n][test_file]['mpe']
             max_pe = con['test results'][class_n][test_file]['max_pe']
 
             # classifier scores
-            # calc_score[class_id].append([np.array(rmse).mean(), np.array(mpe).mean(), np.array(max_pe).mean()])
-            calc_score[class_id].append([np.array(rmse).min(), np.array(mpe).min(), np.array(max_pe).min()])
+            calc_score[class_id].append([np.array(rmse).mean(), np.array(mpe).mean(), np.array(max_pe).mean()])
+            # calc_score[class_id].append([np.array(rmse).min(), np.array(mpe).min(), np.array(max_pe).min()])
 
             curr_line = [configuration_name, no_files, train_files, class_of_train, test_file, \
                 class_n, repl_commas(np.array(rmse).min()), repl_commas(np.array(rmse).mean()), \
