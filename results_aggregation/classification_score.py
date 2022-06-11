@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 from collections import Counter
+from aggregate_classification import voted_results
 
 def accuracy(y_test, pred):
     sum, lenght = 0, len(pred)
@@ -10,57 +11,38 @@ def accuracy(y_test, pred):
             sum += 1
     return sum/lenght
 
-def perform_classification(dfs):
-    df_shape = dfs[list(dfs.keys())[0]].shape
-    train_classes = list(dfs.keys())
+def perform_classification(dfs, col_substring, main_path):
+    train_classes = sorted(list(dfs.keys()))
+    results_based_on = ['min rmse', 'mean rmse', 'min mpe', 'mean mpe', 'min max_pe', 'mean max_pe']
+    results_based_on_metric = [c for c in results_based_on if col_substring in c]
+    req_columns = ['conf', 'no. train files', 'train file(s)', 'test file', 'test class']
+    df_results = pd.DataFrame([], columns=req_columns+['prediction'])
+    for line in range(dfs[list(dfs.keys())[0]].shape[0]):
+        curr_line_results = []
+        for tr_class in train_classes:
+            curr_line = dfs[tr_class][results_based_on_metric].iloc[line].values
+            curr_line_results.append(curr_line)
 
-    # classification
-    unique_confs = np.unique(dfs[train_classes[0]]['conf'].values)
-    all_preds, real_vals, iter, winning_confs = [], [], [], []
-    test_classes = np.unique(dfs[train_classes[0]]['test class'].values)
-    test_files = np.unique(dfs[train_classes[0]]['test file'].values)
-    for cl_tr in list(dfs.keys()):
-        for conf in unique_confs:
-            iter.append([cl_tr, conf])
-            
-    results_based_on = ['min mpe', 'mean mpe', 'min rmse']
-    for te_f in test_files:
-        for cl in test_classes:
-            class_results = []
-            for c in enumerate(iter):
-                curr_res_to_be_votes_on = []
-                curr_df = dfs[f'{c[1][0]}'].loc[dfs[f'{c[1][0]}']['conf'] == c[1][1]]
-                curr_errors = curr_df[results_based_on]\
-                    .loc[(curr_df['test class'] == cl) & (curr_df['test file'] == te_f)]\
-                        .values[0]
-                curr_res_to_be_votes_on.append(curr_errors)
-            print(curr_res_to_be_votes_on)
-            return
+        curr_res_line_to_df = dict(dfs[tr_class][req_columns].iloc[line])
+        curr_res_line_to_df['prediction'] = voted_results(curr_line_results)
+        df_results = df_results.append(curr_res_line_to_df, ignore_index=True)
+    
+    conf_accuracies = []
+    df_conf_results = pd.DataFrame([], columns=['conf', 'accuracy'])
+    for conf in np.unique(df_results['conf'].values):
+        curr_conf_test_set = df_results['test class'].loc[df_results['conf'] == conf].values
+        curr_conf_preds = df_results['prediction'].loc[df_results['conf'] == conf].values
+        curr_conf_acc = accuracy(curr_conf_test_set, curr_conf_preds)
+        df_conf_results = df_conf_results.append({'conf': conf, 'accuracy': curr_conf_acc}, ignore_index=True)
 
-    # for i, conf in enumerate(iter):
-    # # for conf in range(df_shape[0]):
-    #     rmse, mpe, max_pe = [], [], []
-    #     for df_id, df_key in enumerate(train_classes):
-    #         rmse.append(dfs[df_key].iloc[conf]['min rmse'])
-    #         mpe.append(dfs[df_key].iloc[conf]['min mpe'])
-    #         max_pe.append(dfs[df_key].iloc[conf]['min max_pe'])
-    #         # rmse.append(dfs[df_key].loc[(dfs[df_key]['conf'] == conf[0]) & (dfs[df_key]['test class'] == int(conf[1]))]['min rmse'].mean())
-    #         # mpe.append(dfs[df_key].loc[(dfs[df_key]['conf'] == conf[0]) & (dfs[df_key]['test class'] == int(conf[1]))]['min mpe'].mean())
-    #         # max_pe.append(dfs[df_key].loc[(dfs[df_key]['conf'] == conf[0]) & (dfs[df_key]['test class'] == int(conf[1]))]['min max_pe'].mean())
-       
-    #     best_rmse, best_mpe, best_max_pe = np.argmin(rmse), np.argmin(mpe), np.argmin(max_pe)
-    #     counts = np.bincount([best_rmse, best_mpe, best_max_pe])
-    #     all_preds.append(int(train_classes[np.argmax(counts)]))
-    #     # real_vals.append(dfs[train_classes[0]].loc[(dfs[df_key]['conf'] == conf[0]) & (dfs[df_key]['test class'] == int(conf[1]))]['test class'].values[0]) 
-    #     real_vals.append(dfs[train_classes[0]].iloc[conf]['test class']) 
-    #     if int(train_classes[np.argmax(counts)]) == dfs[train_classes[0]].iloc[conf]['test class']:
-    #         winning_confs.append(dfs[train_classes[0]].iloc[conf]['conf'])
+    res_accuracy = int(accuracy(df_results['test class'].values, df_results['prediction'].values) * 100)
+    res_file_name_base = res_file_name = dfs[tr_class]['conf'].values[0].split('class')[0]
+    res_file_name = res_file_name_base + f'acc_{res_accuracy}perc.csv'
+    out_path = os.path.join(main_path, res_file_name)
+    out_path_confs = os.path.join(main_path, res_file_name_base[:-1]+'.csv')
+    df_conf_results.to_csv(out_path_confs, mode='w', sep=';', index=False)
+    df_results.to_csv(out_path, mode='w', sep=';', index=False)
 
-    print(Counter(winning_confs))
-    print(accuracy(all_preds, real_vals))
-
-
-agg_res_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results_agg'
 def get_results_to_compare(main_dir_path):
     dfs = dict()
     dirs = [f for f in os.listdir(main_dir_path) if '.' not in f]
@@ -79,5 +61,7 @@ def get_results_to_compare(main_dir_path):
         dfs[f'{train_class}'] = curr_df
     return dfs
 
+
+agg_res_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results_agg'
 dfs = get_results_to_compare(agg_res_dir)
-perform_classification(dfs)
+perform_classification(dfs, '', agg_res_dir)

@@ -7,8 +7,8 @@
     "method": "specific",
     "train": [
       [0, 1],
-      [2, 3],
-      [4, 5]
+      [1, 2],
+      [2, 3]
     ],
     "train_samples": 2,
     "test": [0, 1, 2, 3, 5],
@@ -17,11 +17,11 @@
   "classes": [0, 1, 2, 3],
   "classifier": "fcm",
   "cls_params": {
-    "-m": ["outer"],
-    "-e": ["rmse"],
-    "-i": ["15"],
-    "-w": ["4", "6"],
-    "-pt": ["random", "sequential"],
+    "-m": ["outer", "inner"],
+    "-e": ["mpe", "rmse"],
+    "-i": ["30"],
+    "-w": ["4"],
+    "-pt": ["sequential"],
     "-flag_params": ["-ua"]
   }
 }

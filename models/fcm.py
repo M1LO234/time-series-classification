@@ -8,7 +8,7 @@ def fcm(args):
     # reading passed arguments
     cls_type, steparg, transform, errorarg, modearg, iterarg, pi, windowarg, amountarg, savepath, \
     dataset, ds_name, dimensions, tr_path, te_path, specFiles, specTestFile, rescaleLimits, min_max_sc, \
-    class_number, pass_train, ua = args
+    class_number, pass_train, ua, best_weights = args
 
     if cls_type == "fcm":
         if specFiles: #TODO standardize sepcFiles format
@@ -85,14 +85,13 @@ def fcm(args):
 
         ts = f'{ds_name}_{cls_type}_{modearg}_{errorarg}_{steparg}_w{windowarg}{"_ua" if ua else ""}_c{class_n}_{"-".join([str(tf) for tf in train_file])}'
 
-
         # preparing training ==========================
         weights, errors, loop_error = fcm_train(train_series_set=train_series_set,
                                                 step=step, transition_func=transformation,
                                                 error=error, mode=mode, max_iter=iterarg,
                                                 performance_index=pi,
                                                 window=windowarg, use_aggregation=ua,
-                                                get_best_weights=True,
+                                                get_best_weights=best_weights,
                                                 passing_files_method=pass_train)
 
         agg_weights = weights[1]
@@ -118,7 +117,9 @@ def fcm(args):
                 'max iterations': iterarg,
                 'window size': windowarg,
                 'performance index': pi,
-                'data normalization ranges': min_max_sc
+                'data normalization ranges': min_max_sc,
+                'passing files method': pass_train,
+                'best weights': best_weights
             },
             'files': {
                 'training': train_file,
