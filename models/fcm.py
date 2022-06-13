@@ -119,7 +119,8 @@ def fcm(args):
                 'performance index': pi,
                 'data normalization ranges': min_max_sc,
                 'passing files method': pass_train,
-                'best weights': best_weights
+                'best weights': best_weights,
+                'aggregation used': True if type(agg_weights) == np.ndarray else False
             },
             'files': {
                 'training': train_file,

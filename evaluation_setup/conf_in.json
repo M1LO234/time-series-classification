@@ -1,27 +1,28 @@
 {
-  "name": "Epilepsy",
+  "name": "ToeSegm",
   "dimensions": 3,
-  "train_path": "/Users/miloszwrzesien/Downloads/Epilepsy/Epilepsy_TRAIN.arff",
-  "test_path": "/Users/miloszwrzesien/Downloads/Epilepsy/Epilepsy_TEST.arff",
+  "train_path": "/Users/miloszwrzesien/Downloads/ToeSegmentation1/ToeSegmentation1_TRAIN.arff",
+  "test_path": "/Users/miloszwrzesien/Downloads/ToeSegmentation1/ToeSegmentation1_TEST.arff",
   "files": {
     "method": "specific",
     "train": [
-      [0, 1],
-      [2, 3],
-      [4, 5]
+      [0, 1, 2],
+      [1, 2, 3],
+      [2, 3, 4],
+      [3, 4, 5]
     ],
     "train_samples": 2,
-    "test": [0, 1, 2, 3, 5],
-    "test_classes": [0, 1, 2, 3]
+    "test": [0, 1, 2, 3, 5, 6, 7, 8, 9],
+    "test_classes": [0, 1]
   },
-  "classes": [0, 1, 2, 3],
+  "classes": [0, 1],
   "classifier": "fcm",
   "cls_params": {
     "-m": ["outer"],
-    "-e": ["rmse"],
-    "-i": ["15"],
-    "-w": ["4", "6"],
-    "-pt": ["random", "sequential"],
+    "-e": ["rmse", "mpe", "max_pe"],
+    "-i": ["5"],
+    "-w": ["4"],
+    "-pt": ["sequential"],
     "-flag_params": ["-ua"]
   }
 }
