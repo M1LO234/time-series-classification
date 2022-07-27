@@ -73,7 +73,7 @@ def get_python_run_commands_from_json(path, flag_params):
     parent_dir = Path(abs_f_path).parents[1]
     shutil.move(abs_f_path, parent_dir)
             
-    print(len(run_commands))
+    # print(len(run_commands))
     return run_f_name
 
 def get_test_run_commands():
