@@ -4,4 +4,4 @@ fcm_train copy.py
 fcm_prev.py
 ttt.py
 todos.txt
-evaluation_setup/data.json
+evaluation_setup/data*
