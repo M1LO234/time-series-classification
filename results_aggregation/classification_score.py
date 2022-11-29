@@ -15,6 +15,8 @@ def accuracy(y_test, pred):
 
 def perform_classification(dfs, col_substring, main_path, line_by_line=True, individual=False, ovo=False, pred_from_ovo=False):
     train_classes = sorted(list(dfs.keys()))
+    if ovo:
+        results_based_on = ['min rmse', 'mean rmse', 'min mpe', 'mean mpe', 'min max_pe', 'mean max_pe', 'dtw']
     results_based_on = ['min rmse', 'mean rmse', 'min mpe', 'mean mpe', 'min max_pe', 'mean max_pe']
     results_based_on_metric = [c for c in results_based_on if col_substring in c]
     req_columns = ['conf', 'no. train files', 'train file(s)', 'test file', 'test class']
@@ -55,7 +57,8 @@ def perform_classification(dfs, col_substring, main_path, line_by_line=True, ind
     out_path = os.path.join(main_path, res_file_name)
     out_path_confs = os.path.join(main_path, res_file_name_base[:-1]+'.csv')
     df_conf_results.to_csv(out_path_confs, mode='w', sep=';', index=False)
-    df_results[df_results.columns[-7:]] = df_results[df_results.columns[-7:]].astype('int')
+    # print(df_results.head())
+    # df_results[df_results.columns[-(len(results_based_on_metric)+1):]] = df_results[df_results.columns[-(len(results_based_on_metric)+1):]].astype('int')
     df_results.to_csv(out_path, mode='w', sep=';', index=False)
     return df_results
 
@@ -91,7 +94,8 @@ def ovo_binary_classification(train_classes, values):
 
 agg_res_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results_agg'
 dfs = get_results_to_compare(agg_res_dir)
-df_results = perform_classification(dfs, 'mean', agg_res_dir, True, True, True, True)
+# df_results = perform_classification(dfs, 'dtw', agg_res_dir, True, True, True, True)
+df_results = perform_classification(dfs, '', agg_res_dir, True)
 
 # path_to_df_res = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results_agg/25_10_19_29_ERing_acc_18perc.csv'
 # df_results = pd.read_csv(path_to_df_res, sep=';')

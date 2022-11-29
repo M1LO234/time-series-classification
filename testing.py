@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
+from dtw import *
 
 from util.fcm_util import data_prep, metrics, squashing_functions, weight_optimization, window_steps, window_transforms
 
@@ -22,7 +23,7 @@ def check_dict_for_key(key, dictionary, remove_existing_val=False):
     else:
         return dictionary
 
-def test_fcm(ts, test_file=None, class_test=None, arff=True):
+def test_fcm(ts, test_file=None, class_test=None, arff=True, use_dtw=False):
     if not os.path.exists(ts):
         print("Output folder not found or no test id given")
         return
@@ -39,7 +40,7 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True):
                                                                 test_path=train_summary['files']['test path'],
                                                                 class_train=class_train, 
                                                                 class_test=class_test,
-                                                                dims=3, 
+                                                                dims=train_summary['files']['dimensions'],
                                                                 specificFiles=train_summary['files']['training'],
                                                                 specTestFile=train_summary['files']['testing'] if test_file is None else test_file, 
                                                                 min_max_scale=train_summary['config']['data normalization ranges'],
@@ -69,7 +70,7 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True):
         test_errors = {'rmse': [], 'mpe': [], 'max_pe': []}
 
         # tmp
-        # saved_preds, real_vals = [], []
+        saved_preds, real_vals = [], []
 
         for step_i in getattr(window_steps, train_summary['config']['step'])(series, train_summary['config']['window size']):
             yt = weight_optimization.calc(getattr(squashing_functions, train_summary['config']['transformation function'])(),
@@ -79,19 +80,24 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True):
                             agg_weights)
 
             # tmp
-            # saved_preds.append(yt)
-            # real_vals.append(step_i['y'])
+            if use_dtw:
+                saved_preds.append(yt)
+                real_vals.append(step_i['y'])
 
             test_errors['rmse'].append(metrics.rmse(step_i['y'], yt))
             test_errors['mpe'].append(metrics.mpe(step_i['y'], yt))
             test_errors['max_pe'].append(metrics.max_pe(step_i['y'], yt))
 
+        if use_dtw:
+            dtw_dist = dtw(saved_preds, real_vals)
+            test_errors['dtw'] = dtw_dist.distance
+
+        # return
         # tmp: saving preds
         # tmp_saved_preds.append(saved_preds)
         # tmp_real_vals.append(real_vals)
 
         overall_results[i] = test_errors
-
     # pred = np.array(tmp_saved_preds[0])
     # real = np.array(tmp_real_vals[0])
     # df = np.concatenate((pred, real), axis=1)
@@ -112,11 +118,20 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True):
             curr_test_class_key = class_train
 
         train_summary[res_key] = check_dict_for_key(curr_test_class_key, train_summary[res_key])
-        train_summary[res_key][curr_test_class_key][file_key] = {
-            'rmse': overall_results[i]["rmse"],
-            'mpe': overall_results[i]["mpe"],
-            'max_pe': overall_results[i]["max_pe"]
-        }
+
+        if use_dtw:
+            train_summary[res_key][curr_test_class_key][file_key] = {
+                'rmse': overall_results[i]["rmse"],
+                'mpe': overall_results[i]["mpe"],
+                'max_pe': overall_results[i]["max_pe"],
+                'dtw': overall_results[i]["dtw"]
+            }
+        else:
+            train_summary[res_key][curr_test_class_key][file_key] = {
+                'rmse': overall_results[i]["rmse"],
+                'mpe': overall_results[i]["mpe"],
+                'max_pe': overall_results[i]["max_pe"]
+            }
 
     with open(ts, 'w') as f:
         json.dump(train_summary, f)

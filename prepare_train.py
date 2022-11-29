@@ -21,7 +21,6 @@ def fcm_train(train_series_set, step, transition_func, error, mode, max_iter, pe
 
     if passing_files_method == 'sequential':
         train_batch = train_series_set.reshape(1,-1,train_series_set.shape[2])[0]
-
     for _ in trange(max_iter, desc='model iterations', leave=True):
         if passing_files_method == 'random':
             train_batch = random.choice(train_series_set)

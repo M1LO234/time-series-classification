@@ -69,7 +69,7 @@ def import_from_arff(train_path, test_path, class_train=1, class_test=None, dims
     if dims > 1:
         test_files_amount = len(read_multivariate(test_path, [class_test]))
     elif dims == 1:
-        test_files_amount = len(read_univariate(test_path, [class_test]))
+        test_files_amount = len(read_univariate(test_path, [class_test])[0])
 
     if specificFiles:
         if isinstance(specificFiles, list):
@@ -85,12 +85,16 @@ def import_from_arff(train_path, test_path, class_train=1, class_test=None, dims
 
     # read time series from file
     if dims > 1:
-        train_series_set = read_multivariate(train_path, [class_train], spec_train_files)
-        test_series_set = read_multivariate(test_path, [class_test], spec_test_file)
+        train_series_set, _ = read_multivariate(train_path, [class_train], spec_train_files)
+        test_series_set, _ = read_multivariate(test_path, [class_test], spec_test_file)
     elif dims == 1:
-        train_series_set = expand_series(read_univariate(train_path, [class_train], spec_train_files))
-        test_series_set = expand_series(read_univariate(test_path, [class_test], spec_test_file))
-
+        train_series_set = expand_series(read_univariate(train_path, [class_train], spec_train_files)[0])
+        test_series_set = expand_series(read_univariate(test_path, [class_test], spec_test_file)[0])
+    
+    # print(type(train_series_set))
+    # print(train_series_set[0].shape)
+    # print(train_series_set[0][0].shape)
+    # return
     # rescaling
     all_series = np.concatenate(([tr for tr in train_series_set], test_series_set))
     sc_min, sc_max = np.min(all_series), np.max(all_series)
