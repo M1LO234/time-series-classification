@@ -5,3 +5,5 @@ fcm_prev.py
 ttt.py
 todos.txt
 evaluation_setup/data*
+evaluation_setup/conf*
+/run_scripts/*
