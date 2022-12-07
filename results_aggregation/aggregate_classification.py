@@ -27,15 +27,14 @@ def iterate_over_dirs(main_dir, out_dir, range_dirs: list=None, use_dtw=False):
             curr_out_dir = os.path.join(out_dir, list_dirs[dir_id])
             aggregate_from_json(json_path, curr_out_dir, conf_name, use_dtw)
 
-def aggregate_from_json(json_path, output_path, configuration_name, use_dtw=False):
+def aggregate_from_json(json_path, output_path, configuration_name, use_dtw=False, multi_comparison=False):
     with open(json_path, 'r') as f:
         con = json.load(f)
 
     curr_dir = output_path+'/'
     if not os.path.exists(curr_dir):
         os.mkdir(curr_dir)
-
-    out_csv_path = output_path+'/'+output_path.split('/')[-1]+'.csv'
+    
     out_txt_path = output_path+'/'+output_path.split('/')[-1]+'_configs.csv'
     out_summary_path = output_path+'/'+output_path.split('/')[-1]+'_summary.csv'
     no_files = len(con['files']['training'])
@@ -47,7 +46,12 @@ def aggregate_from_json(json_path, output_path, configuration_name, use_dtw=Fals
 
     curr_conf_values = [configuration_name, train_files] + [str(con['config'][k]) for k in conf_values]
     df = pd.DataFrame([curr_conf_values], columns=cols_conf)
-    df.to_csv(out_txt_path, mode='a', header=not os.path.exists(out_txt_path) , sep=';', index=False)
+
+    if not multi_comparison:
+        out_csv_path = output_path+'/'+output_path.split('/')[-1]+'.csv'
+        df.to_csv(out_txt_path, mode='a', header=not os.path.exists(out_txt_path) , sep=';', index=False)
+    else:
+        out_csv_path = output_path+'/'+f'c{configuration_name[1]}.csv'
 
     if use_dtw:
         cols = ['conf', 'no. train files', 'train file(s)', 'train class', 'test file', 'test class', 'min rmse', 'mean rmse', 'min mpe', 'mean mpe', 'min max_pe', 'mean max_pe', 'dtw']
@@ -91,9 +95,10 @@ def aggregate_from_json(json_path, output_path, configuration_name, use_dtw=Fals
     conf_df.to_csv(out_csv_path, mode='a', header=not os.path.exists(out_csv_path), sep=';', index=False)
 
     # prediction based on voting
-    pred_class = classes_tested[voted_results(calc_score)]
-    pred_df = pd.DataFrame([[configuration_name, class_of_train, pred_class]], columns=['configuration', 'real class', 'prediction'])
-    pred_df.to_csv(out_summary_path, mode='a', header=not os.path.exists(out_summary_path), sep=';', index=False)
+    if not multi_comparison:
+        pred_class = classes_tested[voted_results(calc_score)]
+        pred_df = pd.DataFrame([[configuration_name, class_of_train, pred_class]], columns=['configuration', 'real class', 'prediction'])
+        pred_df.to_csv(out_summary_path, mode='a', header=not os.path.exists(out_summary_path), sep=';', index=False)
 
 out_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results_agg'
 main_dir = '/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/fcm_results'
