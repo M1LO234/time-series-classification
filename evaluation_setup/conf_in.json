@@ -4,15 +4,10 @@
   "train_path": "/Users/miloszwrzesien/Development/ts_classification/tsc-datasets/univariate_final/Chinatown/Chinatown_TRAIN.arff",
   "test_path": "/Users/miloszwrzesien/Development/ts_classification/tsc-datasets/univariate_final/Chinatown/Chinatown_TEST.arff",
   "files": {
-    "method": "specific",
-    "train": [
-      [0, 1],
-      [1, 2],
-      [2, 3],
-      [3, 4]
-    ],
+    "method": "random",
+    "train": ["r5-3-10", "r6-3-23"],
     "train_samples": 2,
-    "test": [0, 1, 2, 3, 5],
+    "test": "a10-20",
     "test_classes": [0, 1]
   },
   "classes": [0, 1],

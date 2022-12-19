@@ -8,6 +8,7 @@ import numpy as np
 from pathlib import Path
 from sklearn.model_selection import ParameterGrid
 from datetime import datetime
+from pyts.approximation import PiecewiseAggregateApproximation
 
 def list_to_str(lst):
     return str(lst)[1:-1].replace(' ', '')
@@ -18,6 +19,32 @@ def get_files_list_from_json(value):
     elif type(value) == list:
         return value
 
+def get_random_ints(length, v_min, v_max):
+    out = []
+    for l in range(length):
+        not_added = True
+        while not_added:
+            curr_rand = np.random.randint(v_min, v_max)
+            if curr_rand not in out:
+                out.append(curr_rand)
+                not_added = False
+    out.sort()
+    return out
+
+def parameters_from_range(r):
+    range_vals = [int(v) for v in r[1:].split("-")]
+    # all integers from range
+    if 'a' in r:
+        return list(range(range_vals[0], range_vals[1]+1))
+    # odd numbers
+    if 'o' in r:
+        return [v for v in list(range(range_vals[0], range_vals[1]+1)) if v%2 != 0]
+    # random integers from interval
+    if 'r' in r:
+        return get_random_ints(*range_vals)
+    # specific values
+    if 's' in r:
+        return [int(v) for v in r[1:].split('-')]
 
 def get_python_run_commands_from_json(path, flag_params):
     f = open(path)
@@ -31,9 +58,18 @@ def get_python_run_commands_from_json(path, flag_params):
         te_path = conf['datasets']['test_path']
 
         sF, stF, mtf, mtf_cl = None, None, "", ""
+
+        if 'a' in conf['datasets']['files']['test']:
+            test_values = parameters_from_range(conf['datasets']['files']['test'])
+            conf['datasets']['files']['test'] = test_values
+
         if conf['datasets']['files']['method'] == 'random':
-            sF = f"-sF {list_to_str(list(np.random.choice(get_files_list_from_json(conf['datasets']['files']['train']), conf['datasets']['files']['train_samples'], replace=False)))}"
-            stF = f"-stF {list_to_str(conf['datasets']['files']['test'])}" if len(conf['datasets']['files']['train']) > 0 else ""
+            train_values = parameters_from_range(conf['datasets']['files']['train'])
+            sF = f"-sF {list_to_str(train_values)}"
+            stF = f"-stF {list_to_str(conf['datasets']['files']['test'])}" if len(conf['datasets']['files']['test']) == 0 else f"-stF {list_to_str([1])}"
+            mtf = f"-mtf {list_to_str(get_files_list_from_json(conf['datasets']['files']['test']))}"
+            mtf_cl = f"-mtf_class {list_to_str(conf['datasets']['files']['test_classes'])}"
+
         elif conf['datasets']['files']['method'] == 'crossval':
             # todo: implement crossvalidation function
             pass
@@ -42,7 +78,7 @@ def get_python_run_commands_from_json(path, flag_params):
             stF = f"-stF {list_to_str(conf['datasets']['files']['test'])}" if len(conf['datasets']['files']['test']) == 0 else f"-stF {list_to_str([1])}"
             mtf = f"-mtf {list_to_str(get_files_list_from_json(conf['datasets']['files']['test']))}"
             mtf_cl = f"-mtf_class {list_to_str(conf['datasets']['files']['test_classes'])}"
-        
+
         class_n = conf['class']
         cls_type = conf['classifier']
         cls_params = ''
