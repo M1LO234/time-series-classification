@@ -44,7 +44,8 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True, use_dtw=False):
                                                                 specificFiles=train_summary['files']['training'],
                                                                 specTestFile=train_summary['files']['testing'] if test_file is None else test_file, 
                                                                 min_max_scale=train_summary['config']['data normalization ranges'],
-                                                                rescLimits=None)
+                                                                rescLimits=None,
+                                                                paa_window=train_summary['config']['paa_window'])
     else:
         train_series_set, test_series = data_prep.import_and_transform(
             train_summary['files']['training'],

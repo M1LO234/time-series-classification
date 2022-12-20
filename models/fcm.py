@@ -8,7 +8,7 @@ def fcm(args):
     # reading passed arguments
     cls_type, steparg, transform, errorarg, modearg, iterarg, pi, windowarg, amountarg, savepath, \
     dataset, ds_name, dimensions, tr_path, te_path, specFiles, specTestFile, rescaleLimits, min_max_sc, \
-    class_number, pass_train, ua, best_weights = args
+    class_number, pass_train, ua, best_weights, paa_window = args
 
     if cls_type == "fcm":
         if specFiles: #TODO standardize sepcFiles format
@@ -81,7 +81,7 @@ def fcm(args):
         else:
             train_series_set, test_series_set, train_file, test_file = data_prep.import_from_arff(train_path=train_path, test_path=test_path,
                                                                                 class_train=class_n, dims=dimensions, specificFiles=specFiles,
-                                                                                specTestFile=specTestFile, min_max_scale=min_max_sc)
+                                                                                specTestFile=specTestFile, min_max_scale=min_max_sc, paa_window=paa_window)
 
         ts = f'{ds_name}_{cls_type}_{modearg}_{errorarg}_{steparg}_w{windowarg}{"_ua" if ua else ""}_c{class_n}_{"-".join([str(tf) for tf in train_file])}'
 
@@ -120,7 +120,8 @@ def fcm(args):
                 'data normalization ranges': min_max_sc,
                 'passing files method': pass_train,
                 'best weights': best_weights,
-                'aggregation used': True if type(agg_weights) == np.ndarray else False
+                'aggregation used': True if type(agg_weights) == np.ndarray else False,
+                'paa_window': paa_window
             },
             'files': {
                 'training': train_file,

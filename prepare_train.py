@@ -30,7 +30,7 @@ def fcm_train(train_series_set, step, transition_func, error, mode, max_iter, pe
             step, transition_func(), window_transforms.mean_transform,
             weights, error, agg_weights
         )
-        print("loop_error: ", loop_error)
+        # print("loop_error: ", loop_error)
 
         all_weights.append(weights)
         errors.append(loop_error)
