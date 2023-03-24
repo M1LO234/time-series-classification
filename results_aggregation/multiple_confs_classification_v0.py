@@ -13,25 +13,16 @@ multiple_confs_output_path = '/Users/miloszwrzesien/Development/cognitiveMaps/ne
 if __name__ == "__main__":
     sufix = str(sys.argv[1])
     res_type = int(sys.argv[2])
-    
-best_confs = pd.read_csv('/Users/miloszwrzesien/Development/cognitiveMaps/new_fcm_module/multiple_configs_results/best_confs.csv', sep=';', header=0)
-best_confs = best_confs['conf'].values
-
-final_best_confs = []
-for bc in best_confs:
-    final_best_confs.append(bc)
-    final_best_confs.append(bc.replace('class1', 'class0'))
 
 jsons_by_class = [[],[]]
-for conf_main_dir in [c for c in os.listdir(configs_path) if 'tests' not in c and '.' not in c]:
+for conf_main_dir in [c for c in os.listdir(configs_path) if 'tests' not in c]:
     curr_main = os.path.join(configs_path, conf_main_dir, 'fcm_results')
-    next_listed = [c for c in os.listdir(curr_main) if os.path.isdir(os.path.join(curr_main, c)) and '.' not in c]
+    next_listed = [c for c in os.listdir(curr_main) if os.path.isdir(os.path.join(curr_main, c))]
     next_listed.sort()
-#     print(next_listed)
     for c_id, classes_dir in enumerate(next_listed):
         curr_class_dir = os.path.join(curr_main, classes_dir)
         curr_class_jsons = []
-        for conf_dir in [c for c in os.listdir(curr_class_dir) if os.path.isdir(os.path.join(curr_class_dir, c)) and c in final_best_confs]:
+        for conf_dir in [c for c in os.listdir(curr_class_dir) if os.path.isdir(os.path.join(curr_class_dir, c))]:
             curr_class_conf_dir = os.path.join(curr_class_dir, conf_dir)
             curr_conf_json = [f for f in os.listdir(curr_class_conf_dir) if '.json' in f][0]
             curr_class_jsons.append(os.path.join(curr_class_conf_dir, curr_conf_json))
@@ -59,7 +50,7 @@ opp_confs = np.unique(df1['conf'].values)
 results_based_on = ['min rmse', 'mean rmse', 'min mpe', 'mean mpe', 'min max_pe', 'mean max_pe']
 relevant_cols_list = [[results_based_on, 'all_cols'], [[results_based_on[1]], 'rmse'], [[results_based_on[3]], 'mpe'], [[results_based_on[5]], 'max_pe'] ]
 
-for r_id, relevant_cols in enumerate(relevant_cols_list):
+for r_id, relevant_cols in enumerate([relevant_cols_list[res_type]]):
     out_values = []
     for conf in tqdm(confs, desc='Aggregating...'): #class 0 confs
         test_files = np.unique(df0.loc[df0['conf'] == conf]['test file'].values)
