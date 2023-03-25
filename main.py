@@ -69,6 +69,7 @@ if __name__ == '__main__':
         parser.add_argument("-best_weights", dest="best_weights", action="store_true", help="Use best aggregation weigths (True), or last")
 
         parser.add_argument("-paa", dest="paa_window", default=0, type=int, help='PAA Window')
+        parser.add_argument("-ell", dest="expand_lags_list", default='', type=str, help='Expand lags list')
         parser.add_argument("-mtf", dest="testing_files", help="Multiple testing files")
         parser.add_argument("-mtf_class", dest="testing_files_class", help="Classes of multiple testing files")
         parser.add_argument("-res_file", dest="res_file", help="Result file - .json")
@@ -79,7 +80,7 @@ if __name__ == '__main__':
         argu =  args.cls_type, args.step, args.transform, args.error, args.mode, args.iter, args.pi, \
                 args.window, args.amount, args.savepath, args.dataset, args.ds_name, args.dimensions, \
                 args.tr_path, args.te_path, args.specFiles, args.specTestFile, args.rescaleLimits, \
-                args.min_max_sc, args.c, args.pt, args.ua, args.best_weights, args.paa_window
+                args.min_max_sc, args.c, args.pt, args.ua, args.best_weights, args.paa_window, args.expand_lags_list
         main(argu, args.testing_files, args.testing_files_class, res_file=args.res_file)
     elif init_args.model == 'ir':
         pass

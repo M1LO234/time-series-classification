@@ -8,7 +8,6 @@ import numpy as np
 from pathlib import Path
 from sklearn.model_selection import ParameterGrid
 from datetime import datetime
-from pyts.approximation import PiecewiseAggregateApproximation
 
 def list_to_str(lst):
     return str(lst)[1:-1].replace(' ', '')

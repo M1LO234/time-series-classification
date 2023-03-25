@@ -8,7 +8,7 @@ def fcm(args):
     # reading passed arguments
     cls_type, steparg, transform, errorarg, modearg, iterarg, pi, windowarg, amountarg, savepath, \
     dataset, ds_name, dimensions, tr_path, te_path, specFiles, specTestFile, rescaleLimits, min_max_sc, \
-    class_number, pass_train, ua, best_weights, paa_window = args
+    class_number, pass_train, ua, best_weights, paa_window, expand_lags_list = args
 
     if cls_type == "fcm":
         if specFiles: #TODO standardize sepcFiles format
@@ -71,6 +71,9 @@ def fcm(args):
         if min_max_sc:
             min_max_sc = [float(v) for v in min_max_sc.split(',')]
 
+        if expand_lags_list:
+            expand_lags_list = [int(v) for v in expand_lags_list.split(',')]
+
         if not tr_path:
             train_series_set, test_series_set, train_file, test_file = data_prep.import_from_dataset(amountarg, train_path=train_path,
                                                                                         test_path=test_path, classif=class_n, 
@@ -81,7 +84,13 @@ def fcm(args):
         else:
             train_series_set, test_series_set, train_file, test_file = data_prep.import_from_arff(train_path=train_path, test_path=test_path,
                                                                                 class_train=class_n, dims=dimensions, specificFiles=specFiles,
-                                                                                specTestFile=specTestFile, min_max_scale=min_max_sc, paa_window=paa_window)
+                                                                                specTestFile=specTestFile, min_max_scale=min_max_sc, paa_window=paa_window, 
+                                                                                expand_dims_list=expand_lags_list)
+
+        # test values
+        # print('=== fcm module')
+        # print(train_series_set.shape)
+        # return
 
         ts = f'{ds_name}_{cls_type}_{modearg}_{errorarg}_{steparg}_w{windowarg}{"_ua" if ua else ""}_c{class_n}_{"-".join([str(tf) for tf in train_file])}'
 
@@ -96,9 +105,7 @@ def fcm(args):
 
         agg_weights = weights[1]
         weights = weights[0]
-        # =============================================
 
-        # return
         if (savepath == None):
             savedist = 'output'
         else:
@@ -121,7 +128,8 @@ def fcm(args):
                 'passing files method': pass_train,
                 'best weights': best_weights,
                 'aggregation used': True if type(agg_weights) == np.ndarray else False,
-                'paa_window': paa_window
+                'paa_window': paa_window,
+                'expand lags list': expand_lags_list
             },
             'files': {
                 'training': train_file,
@@ -133,7 +141,7 @@ def fcm(args):
             },
             'weights': {
                 'aggregation': agg_weights.tolist() if type(agg_weights) == np.ndarray else None,
-                'fcm': weights.tolist()
+                'fcm': np.array(weights)[:(3 if dimensions < 3 else dimensions), :(3 if dimensions < 3 else dimensions)].tolist()
             },
             "train results": {},
             "test results": {},

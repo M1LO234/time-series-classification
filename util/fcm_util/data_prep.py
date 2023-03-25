@@ -3,7 +3,7 @@ import os
 import random
 import numpy as np
 from ..preprocessing.read_file import read_multivariate, read_univariate
-from ..preprocessing.get_multivariate import expand_series
+from ..preprocessing.get_multivariate import expand_series, expand_dim_with_lags
 from ..preprocessing.discretization import get_disc_data
 
 
@@ -63,7 +63,7 @@ def import_from_dataset(amount=1, train_path='UWaveGestureLibrary/Train', test_p
     train_series_set, test_series = import_and_transform(train_files, test_files[0], train_path, test_path, classif, min_max_scale=min_max_scale, rescLimits=rescLimits)
     return train_series_set, test_series, train_files, test_files
 
-def import_from_arff(train_path, test_path, class_train=1, class_test=None, dims=1, specificFiles=None, specTestFile=None, min_max_scale=None, rescLimits=None, paa_window=0):
+def import_from_arff(train_path, test_path, class_train=1, class_test=None, dims=1, specificFiles=None, specTestFile=None, min_max_scale=None, rescLimits=None, paa_window=0, expand_dims_list=False):
     if class_test == None:
         class_test = class_train
     
@@ -92,14 +92,15 @@ def import_from_arff(train_path, test_path, class_train=1, class_test=None, dims
         train_series_set = expand_series(read_univariate(train_path, [class_train], spec_train_files)[0])
         test_series_set = expand_series(read_univariate(test_path, [class_test], spec_test_file)[0])
 
+    # discretizing all dimensions
     if paa_window > 0:
         train_series_set = get_disc_data(train_series_set, paa_window)
         test_series_set = get_disc_data(test_series_set, paa_window)
 
-    # (number_of_samples, sample_length, dims)
-    # print(len(train_series_set))
-    # print(train_series_set[0].shape)
-    # print(train_series_set[0][0].shape)
+    # adding new dimensions based on lags
+    if expand_dims_list:
+        train_series_set = expand_dim_with_lags(train_series_set, expand_dims_list)
+        test_series_set = expand_dim_with_lags(test_series_set, expand_dims_list)
 
     all_series = np.concatenate(([tr for tr in train_series_set], test_series_set))
     sc_min, sc_max = np.min(all_series), np.max(all_series)

@@ -27,3 +27,17 @@ def expand_series(data):
         res = np.transpose(np.stack((original, first_lag, second_lag)))
         out.append(res)
     return out
+
+def expand_dim_with_lags(series, lags_list):
+    out, new_dims = [], []
+    max_len = series[0].shape[0] - np.max(lags_list)
+    for sample in series:
+        for dim in range(sample.shape[1]):
+            for lag_degree in lags_list:
+                    new_dims.append(get_lag(sample[:,dim], lag_degree)[:max_len])
+        new_dims = np.array(new_dims).T
+        out.append(np.append(sample[:max_len,:], new_dims, axis=1))
+    return out
+        
+
+    

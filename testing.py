@@ -85,9 +85,14 @@ def test_fcm(ts, test_file=None, class_test=None, arff=True, use_dtw=False):
                 saved_preds.append(yt)
                 real_vals.append(step_i['y'])
 
-            test_errors['rmse'].append(metrics.rmse(step_i['y'], yt))
-            test_errors['mpe'].append(metrics.mpe(step_i['y'], yt))
-            test_errors['max_pe'].append(metrics.max_pe(step_i['y'], yt))
+            if train_summary['config']['expand lags list'] == '':
+                test_errors['rmse'].append(metrics.rmse(step_i['y'], yt))
+                test_errors['mpe'].append(metrics.mpe(step_i['y'], yt))
+                test_errors['max_pe'].append(metrics.max_pe(step_i['y'], yt))
+            else:
+                test_errors['rmse'].append(metrics.rmse(step_i['y'][0], yt[0]))
+                test_errors['mpe'].append(metrics.mpe(step_i['y'][0], yt[0]))
+                test_errors['max_pe'].append(metrics.max_pe(step_i['y'][0], yt[0]))
 
         if use_dtw:
             dtw_dist = dtw(saved_preds, real_vals)
